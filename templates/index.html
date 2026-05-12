@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>上影节排片小助手</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+    }
+
+    /* ======== Top Bar ======== */
+    #top-bar {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      gap: 10px;
+      background: #fafafa;
+      border-bottom: 1px solid #ddd;
+      flex-shrink: 0;
+    }
+
+    #search-input {
+      flex: 1;
+      max-width: 280px;
+      padding: 6px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    #cart-badge-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    #cart-badge {
+      background: #e76f24;
+      color: #fff;
+      border-radius: 50%;
+      min-width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #show-timeline-btn,
+    #filter-btn {
+      padding: 6px 16px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #4aa0eb;
+      color: #fff;
+    }
+
+    #show-timeline-btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    #settings-btn {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      color: #666;
+      margin-left: auto;
+    }
+
+    /* Cart Dropdown */
+    #cart-dropdown {
+      display: none;
+      position: absolute;
+      top: 30px;
+      left: 0;
+      width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      z-index: 500;
+      font-size: 0.85rem;
+      padding: 8px 0;
+    }
+
+    #cart-dropdown .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    #cart-dropdown .cart-item:hover {
+      background: #f8f8f8;
+    }
+
+    #cart-dropdown .cart-item-title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #cart-dropdown .cart-item-del {
+      cursor: pointer;
+      color: #e76f24;
+      font-size: 1.1rem;
+      padding: 0 4px;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    #cart-dropdown .cart-empty {
+      padding: 16px;
+      text-align: center;
+      color: #999;
+    }
+
+    #cart-dropdown .cart-header {
+      padding: 6px 12px;
+      font-weight: bold;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ======== Main Container ======== */
+    #main-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ======== Browse View ======== */
+    #browse-view {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    #browse-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    #filter-panel {
+      width: 280px;
+      min-width: 200px;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #movie-grid-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    #movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 10px;
+    }
+
+    #no-movies-msg {
+      display: none;
+      text-align: center;
+      color: #999;
+      padding: 40px;
+      font-size: 1rem;
+    }
+
+    /* Movie Card */
+    .movie-card {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 12px 14px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .movie-card:hover {
+      border-color: #4aa0eb;
+      box-shadow: 0 2px 8px rgba(74, 160, 235, 0.12);
+    }
+
+    .movie-card.interested {
+      border-color: #e76f24;
+      background: #fef9f5;
+    }
+
+    .movie-card-left {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .movie-card-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .movie-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .movie-meta {
+      font-size: 0.78rem;
+      color: #999;
+      margin-bottom: 2px;
+    }
+
+    .movie-meta-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .movie-unit-tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: #e8f0fe;
+      color: #4aa0eb;
+      font-size: 0.72rem;
+    }
+
+    .movie-count-tag {
+      font-size: 0.75rem;
+      color: #aaa;
+    }
+
+    .interest-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 28px;
+      text-align: center;
+      background: #eee;
+      color: #999;
+      z-index: 5;
+      transition: all 0.2s;
+    }
+
+    .interest-toggle:hover {
+      background: #e76f24;
+      color: #fff;
+    }
+
+    .interest-toggle.active {
+      background: #e76f24;
+      color: #fff;
+    }
+
+    /* ======== Filter Panel ======== */
+    .tag-group {
+      margin: 0;
+    }
+
+    .tag-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .tag-header {
+      cursor: pointer;
+      font-weight: bold;
+      user-select: none;
+      font-size: 0.9rem;
+    }
+
+    .group-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .group-actions button {
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .btn-select-all {
+      background: #4aa0eb;
+      color: #fff;
+    }
+
+    .btn-deselect-all {
+      background: #e76f24;
+      color: #fff;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      max-height: 150px;
+      overflow-y: auto;
+      padding: 6px 8px;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+    }
+
+    .tag-list.collapsed {
+      display: none;
+    }
+
+    .tag-list .tag {
+      padding: 3px 7px;
+      margin: 2px 3px;
+      background: #eee;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tag-list .tag:hover {
+      background: #d1eaff;
+    }
+
+    .tag-list .tag.selected {
+      background: #4aa0eb;
+      color: #fff;
+    }
+
+    .cinema-filter-row {
+      padding: 4px 8px; font-size: 0.8rem; border-bottom: 1px solid #eee;
+    }
+    .cinema-filter-row .cf-row {
+      display: flex; align-items: center; gap: 4px; margin-bottom: 3px;
+    }
+    #radius-input::-webkit-outer-spin-button,
+    #radius-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    #radius-input { -moz-appearance: textfield; }
+
+    .cinema-filter-row select {
+      flex: 1;
+      min-width: 80px;
+      font-size: 0.8rem;
+    }
+
+    .cinema-filter-row input {
+      width: 50px;
+      font-size: 0.8rem;
+      padding: 2px 4px;
+    }
+
+    .cinema-filter-row button {
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    /* ======== Timeline View ======== */
+    #timeline-view {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    #timeline-wrapper-tv {
+      min-height: 100px;
+      max-height: 40vh;
+      overflow-y: auto;
+      padding: 10px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #time-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 4px;
+      padding: 0 5px;
+    }
+
+    #timeline-content {
+      position: relative;
+    }
+
+    .timeline-row {
+      position: relative;
+      height: 40px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      margin-top: 5px;
+      border-radius: 4px;
+    }
+
+    .movie-item {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: #82cfff;
+      border: 1px solid #4aa0eb;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 0.82rem;
+      text-align: center;
+      line-height: 40px;
+      cursor: pointer;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .movie-item.selected {
+      background: #ff8c42;
+      border-color: #e76f24;
+    }
+
+    #divider {
+      height: 5px;
+      background: #ccc;
+      cursor: row-resize;
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    #bottom-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
+
+    #left-panel {
+      width: 30%;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #ddd;
+      background: #fff;
+    }
+
+    #controls {
+      padding: 8px 10px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    #controls button {
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #show-map-btn {
+      background: #4aa0eb;
+      color: #fff;
+    }
+
+    #btn-clear-selection {
+      background: #e76f24;
+      color: #fff;
+    }
+
+    #controls button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    #distances-list {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      color: #333;
+      overflow-y: auto;
+    }
+
+    #map-container {
+      flex: 1;
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ======== Other Showtimes Modal ======== */
+    #other-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 2000;
+    }
+
+    #other-modal-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60vw;
+      max-width: 500px;
+      max-height: 70vh;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      overflow-y: auto;
+      z-index: 2001;
+      font-size: 0.9rem;
+    }
+
+    #other-modal-header {
+      padding: 12px 16px;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #other-modal-close {
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #888;
+    }
+
+    #other-modal-content {
+      padding: 12px;
+    }
+
+    /* ======== Settings Modal ======== */
+    #settings-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 3000;
+    }
+
+    #settings-modal-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      max-width: 90vw;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      z-index: 3001;
+    }
+  </style>
+  <link href="//unpkg.com/layui@2.11.5/dist/css/layui.css" rel="stylesheet">
+  <script src="//unpkg.com/layui@2.11.5/dist/layui.js"></script>
+  <script>
+    window._AMapSecurityConfig = { securityJsCode: '{{ amap_security_code }}' };
+  </script>
+  <script src="https://webapi.amap.com/maps?v=2.0&key={{ amap_key }}"></script>
+</head>
+
+<body>
+
+  <!-- ======== Page Title ======== -->
+  <div id="page-title"
+    style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:8px 20px;flex-shrink:0;display:flex;align-items:center;gap:16px;">
+    <span style="font-size:1.15rem;font-weight:bold;">🎬 上海国际电影节排片小助手</span>
+  </div>
+
+  <!-- ======== Top Bar ======== -->
+  <div id="top-bar">
+    <button type="button" class="layui-btn layui-btn-sm" id="uploadExcelBtn">
+      <i class="layui-icon">&#xe67c;</i> 上传排片Excel
+    </button>
+    <button id="filter-btn" style="display:none;">筛选电影</button>
+    <select id="date-select"
+      style="display:none;padding:4px 8px;font-size:0.9rem;border-radius:4px;border:1px solid #ddd;"></select>
+    <div id="excel-dropdown-wrap" style="position:relative;display:flex;align-items:center;">
+      <button id="excel-dropdown-btn" style="padding:4px 10px;font-size:0.85rem;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">选择排片表</button>
+      <div id="excel-dropdown" style="display:none;position:absolute;top:32px;left:0;min-width:320px;max-height:300px;overflow-y:auto;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:500;font-size:0.82rem;padding:4px 0;"></div>
+    </div>
+    <input id="search-input" type="text" placeholder="搜索影片..." style="display:none;" />
+    <div id="cart-badge-wrap">
+      <span id="cart-badge">0</span>
+      <div id="cart-dropdown"></div>
+    </div>
+    <button id="show-timeline-btn" style="display:none;">查看时间轴</button>
+    <button id="settings-btn" title="高德 Key 设置">⚙️</button>
+  </div>
+
+  <!-- ======== Main Container ======== -->
+  <div id="main-container">
+
+    <!-- ======== Browse View ======== -->
+    <div id="browse-view">
+      <div id="browse-body">
+        <div id="filter-panel">
+          <div class="tag-group">
+            <div class="tag-header-row">
+              <span class="tag-header" id="date-header">▼ 日期</span>
+              <div class="group-actions">
+                <button class="btn-select-all" data-group="date">全选</button>
+                <button class="btn-deselect-all" data-group="date">取消</button>
+              </div>
+            </div>
+            <div id="date-tags" class="tag-list"></div>
+          </div>
+          <div class="tag-group">
+            <div class="tag-header-row">
+              <span class="tag-header" id="director-header">▼ 导演</span>
+              <div class="group-actions">
+                <button class="btn-select-all" data-group="director">全选</button>
+                <button class="btn-deselect-all" data-group="director">取消</button>
+              </div>
+            </div>
+            <div id="director-tags" class="tag-list"></div>
+          </div>
+          <div class="tag-group">
+            <div class="tag-header-row">
+              <span class="tag-header" id="unit-header">▼ 单元</span>
+              <div class="group-actions">
+                <button class="btn-select-all" data-group="unit">全选</button>
+                <button class="btn-deselect-all" data-group="unit">取消</button>
+              </div>
+            </div>
+            <div id="unit-tags" class="tag-list"></div>
+          </div>
+          <div class="tag-group">
+            <div class="tag-header-row">
+              <span class="tag-header" id="cinema-header">▼ 影院</span>
+              <div class="group-actions">
+                <button class="btn-select-all" data-group="cinema">全选</button>
+                <button class="btn-deselect-all" data-group="cinema">取消</button>
+              </div>
+            </div>
+            <div id="cinema-filter-row" class="cinema-filter-row"></div>
+            <div id="cinema-tags" class="tag-list"></div>
+          </div>
+        </div>
+        <div id="movie-grid-container">
+          <div id="browse-actions" style="display:flex;gap:8px;padding:8px 16px;border-bottom:1px solid #eee;">
+            <button id="browse-select-all"
+              style="flex:1;padding:5px 0;font-size:0.85rem;border:1px solid #4aa0eb;border-radius:4px;cursor:pointer;background:#e8f4ff;color:#4aa0eb;">全选筛选结果</button>
+            <button id="browse-deselect-all"
+              style="flex:1;padding:5px 0;font-size:0.85rem;border:1px solid #e76f24;border-radius:4px;cursor:pointer;background:#fff;color:#e76f24;">取消全选</button>
+          </div>
+          <div id="movie-grid"></div>
+          <div id="no-movies-msg">没有匹配的影片</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== Timeline View ======== -->
+    <div id="timeline-view">
+      <div id="timeline-wrapper-tv">
+        <div id="time-scale"><span id="scale-min">--:--</span><span>—</span><span id="scale-max">--:--</span></div>
+        <div id="timeline-content"></div>
+        <div id="no-data-msg" style="display:none;text-align:center;padding:40px;color:#999;font-size:1rem;">暂无排片数据，请上传包含「上海国际电影节」的Excel文件</div>
+      </div>
+      <div id="divider"></div>
+      <div id="bottom-wrapper">
+        <div id="left-panel">
+          <div id="controls">
+            <button id="show-map-btn" disabled>路线规划</button>
+            <button id="btn-clear-selection">取消选择</button>
+          </div>
+          <div id="distances-list"></div>
+        </div>
+        <div id="map-container">
+          <div id="map"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== Other Showtimes Modal ======== -->
+  <div id="other-modal-overlay"></div>
+  <div id="other-modal-dialog">
+    <div id="other-modal-header">
+      <span id="other-modal-header-title">其他排期</span>
+      <span id="other-modal-close">&times;</span>
+    </div>
+    <div id="other-modal-content"></div>
+  </div>
+
+  <!-- ======== Settings Modal ======== -->
+  <div id="settings-modal-overlay"></div>
+  <div id="settings-modal-dialog">
+    <div style="padding:14px 16px;font-size:1.1rem;font-weight:bold;border-bottom:1px solid #ddd;">高德地图 Key 配置</div>
+    <div style="padding:16px;font-size:0.9rem;">
+      <div style="margin-bottom:8px;">
+        <label style="display:block;margin-bottom:4px;">Web服务 Key</label>
+        <input id="cfg-amap-key" type="text"
+          style="width:100%;padding:6px 10px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:8px;">
+        <label style="display:block;margin-bottom:4px;">Web端(JSAPI) Key</label>
+        <input id="cfg-jsapi-key" type="text"
+          style="width:100%;padding:6px 10px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;margin-bottom:4px;">安全密钥</label>
+        <input id="cfg-security-code" type="text"
+          style="width:100%;padding:6px 10px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+      </div>
+      <div id="cfg-status" style="margin-bottom:8px;color:#e76f24;display:none;"></div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button id="btn-settings-cancel"
+          style="padding:8px 16px;background:#ddd;border:none;border-radius:4px;cursor:pointer;">取消</button>
+        <button id="btn-settings-save"
+          style="padding:8px 16px;background:#4aa0eb;color:#fff;border:none;border-radius:4px;cursor:pointer;">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======== LayUI Upload ========
+    layui.use(['upload', 'layer'], function () {
+      var upload = layui.upload;
+      var layer = layui.layer;
+      upload.render({
+        elem: '#uploadExcelBtn',
+        url: '/upload_excel',
+        accept: 'file',
+        exts: 'xls|xlsx',
+        field: 'file',
+        before: function (obj) {
+          const file = obj.file || (obj.files && obj.files[0]) || null;
+          const name = (file && file.name) || '';
+          if (name && !name.includes('上海国际电影节')) {
+            layer.alert('❌ 文件名「' + name + '」不包含「上海国际电影节」，请确认上传的是正确的排片表', { icon: 2 });
+            return false;
+          }
+        },
+        done: function (res) {
+          if (res.status === 'ok') {
+            layer.msg('上传成功，数据已更新', { icon: 1 });
+            setTimeout(function () { window.location.reload(true); }, 800);
+          } else {
+            layer.alert('上传失败：' + (res.message || '未知错误'), { icon: 2 });
+          }
+        },
+        error: function () { layer.alert('上传请求失败，请检查网络连接', { icon: 2 }); }
+      });
+    });
+
+    // ======== Global State ========
+    const uniqueMoviesRaw = JSON.parse('{{ unique_movies | tojson | safe }}');
+    const timelineDataAll = JSON.parse('{{ timeline_data | tojson | safe }}');
+
+    let interestList = new Set();          // Set of movie keys
+    let filteredTimelineData = {};          // from /api/timeline_for_movies
+    let filteredDates = [];                 // sorted dates
+    let currentMode = 'timeline';          // start in timeline mode
+    let currentDate = null;                // active date tab in timeline mode
+    let selectedMovies = [];               // selected screenings for route planning
+
+    // Filter state
+    let selectedDates = new Set();
+    let selectedDirectors = new Set();
+    let selectedUnits = new Set();
+    let selectedCinemas = new Set();
+    let searchQuery = '';
+
+    // ======== Init ========
+    function initPage() {
+      fetch("/api/config").then(r => r.json()).then(cfg => {
+        if (!cfg.configured) {
+          const banner = document.createElement("div");
+          banner.style.cssText = "background:#fff3cd;color:#856404;padding:6px 16px;font-size:0.85rem;border-bottom:1px solid #ffeeba;";
+          banner.innerHTML = '⚠️ 高德Key未配置，地图功能不可用。点击右上角⚙️配置。';
+          document.getElementById("top-bar").after(banner);
+        }
+      }).catch(() => { });
+
+      initMap();
+      buildFilterPanel();
+      bindEvents();
+      initExcelSelector();
+
+      // Default: all movies selected, start in timeline mode
+      interestList = new Set(uniqueMoviesRaw.map(m => m.key));
+      updateCartBadge();
+      showTimelineMode();
+    }
+
+    let excelCurrent = '';
+
+    function refreshExcelSelector() {
+      const btn = document.getElementById('excel-dropdown-btn');
+      const dd = document.getElementById('excel-dropdown');
+      fetch('/api/excel_files').then(r => r.json()).then(data => {
+        excelCurrent = data.current || '';
+        const festivalFiles = (data.files || []).filter(f => f.name.includes('上海国际电影节'));
+        btn.innerText = excelCurrent || '（无排片文件，请上传）';
+        btn.title = excelCurrent || '';
+
+        dd.innerHTML = '';
+        if (festivalFiles.length === 0) {
+          dd.innerHTML = '<div style="padding:12px;text-align:center;color:#999;">无排片文件，请上传</div>';
+          return;
+        }
+        festivalFiles.forEach(f => {
+          const isActive = f.name === excelCurrent;
+          const row = document.createElement('div');
+          row.style.cssText = `display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:pointer;border-bottom:1px solid #f5f5f5;${isActive?'background:#e8f4ff;font-weight:bold;':''}`;
+          row.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.82rem;" title="${f.name}">${isActive ? '📌 ' : ''}${f.name}</span>
+            <span class="excel-del" data-name="${f.name}" title="删除此文件" style="cursor:pointer;color:#e76f24;font-size:1rem;padding:0 4px;flex-shrink:0;margin-left:6px;">✕</span>`;
+          dd.appendChild(row);
+
+          // Click file name → switch
+          row.querySelector('span:first-child').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (f.name === excelCurrent) { toggleExcelDropdown(); return; }
+            if (!confirm('切换排片表将重新加载数据，确定切换至 ' + f.name + '？')) return;
+            fetch('/api/select_excel', {
+              method: 'POST', headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({name: f.name})
+            }).then(r => r.json()).then(data => {
+              if (data.status === 'ok') { window.location.reload(true); }
+              else { alert(data.message || '切换失败'); }
+            }).catch(err => { alert('请求失败：' + err.message); });
+          });
+
+          // Click delete → delete
+          row.querySelector('.excel-del').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!confirm('确定要删除 ' + f.name + ' 吗？此操作不可恢复。')) return;
+            const isCurrent = (f.name === excelCurrent);
+            fetch('/api/delete_excel', {
+              method: 'POST', headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({name: f.name})
+            }).then(r => r.json()).then(data => {
+              if (data.status === 'ok') {
+                if (isCurrent) {
+                  window.location.reload(true);
+                } else {
+                  refreshExcelSelector();
+                  alert(data.message);
+                }
+              } else { alert(data.message || '删除失败'); }
+            }).catch(err => { alert('请求失败：' + err.message); });
+          });
+        });
+      }).catch(() => {});
+    }
+
+    function toggleExcelDropdown(e) {
+      if (e) e.stopPropagation();
+      const dd = document.getElementById('excel-dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+      if (dd.style.display === 'block') refreshExcelSelector();
+    }
+
+    function initExcelSelector() {
+      refreshExcelSelector();
+      document.getElementById('excel-dropdown-btn').addEventListener('click', toggleExcelDropdown);
+      document.addEventListener('click', (e) => {
+        const wrap = document.getElementById('excel-dropdown-wrap');
+        if (wrap && !wrap.contains(e.target)) {
+          document.getElementById('excel-dropdown').style.display = 'none';
+        }
+      });
+    }
+
+    function initMap() {
+      if (typeof AMap === 'undefined') { console.warn("AMap未定义"); return; }
+      window.map = new AMap.Map('map', { center: [121.473701, 31.230416], zoom: 12 });
+      AMap.plugin(['AMap.Riding'], function () { window.ridingService = new AMap.Riding(); });
+    }
+
+    // ======== Filter Panel ========
+    function buildFilterPanel() {
+      const allDates = new Set(), allDirectors = new Set(), allUnits = new Set(), allCinemas = new Set();
+      uniqueMoviesRaw.forEach(m => {
+        (m.dates || []).forEach(d => allDates.add(d));
+        allDirectors.add(m.director || '无导演');
+        allUnits.add(m.unit || '未知');
+        m.cinemas.forEach(c => allCinemas.add(c));
+      });
+
+      // Init selected sets (all selected by default)
+      selectedDates = new Set(allDates);
+      selectedDirectors = new Set(allDirectors);
+      selectedUnits = new Set(allUnits);
+      selectedCinemas = new Set(allCinemas);
+
+      // Render tags
+      const getSet = (group) => {
+        if (group === 'date') return selectedDates;
+        if (group === 'director') return selectedDirectors;
+        if (group === 'unit') return selectedUnits;
+        return selectedCinemas;
+      };
+
+      const renderTags = (container, items, group) => {
+        container.innerHTML = '';
+        Array.from(items).sort().forEach(tag => {
+          const span = document.createElement('span');
+          span.className = 'tag selected';
+          span.textContent = tag;
+          span.dataset.value = tag;
+          span.addEventListener('click', () => {
+            if (group === 'date' && span.classList.contains('selected') && selectedDates.size <= 1) {
+              alert('至少需要选择一个日期'); return;
+            }
+            span.classList.toggle('selected');
+            const set = getSet(group);
+            if (span.classList.contains('selected')) set.add(span.dataset.value);
+            else set.delete(span.dataset.value);
+            renderMovieGrid();
+          });
+          container.appendChild(span);
+        });
+      };
+
+      renderTags(document.getElementById('date-tags'), allDates, 'date');
+      renderTags(document.getElementById('director-tags'), allDirectors, 'director');
+      renderTags(document.getElementById('unit-tags'), allUnits, 'unit');
+      renderTags(document.getElementById('cinema-tags'), allCinemas, 'cinema');
+
+      // Cinema distance filter
+      const filterRow = document.getElementById('cinema-filter-row');
+      const cinemaArr = Array.from(allCinemas).sort();
+      filterRow.innerHTML = `
+    <div class="cf-row">
+      <span>中心影院:</span>
+      <select id="center-cinema-select" style="flex:1;min-width:0;">${cinemaArr.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+    </div>
+    <div class="cf-row">
+      <span>半径(km):</span>
+      <input id="radius-input" type="number" min="0" step="0.1" placeholder="如3" value="" style="width:55px;">
+      <button id="apply-cinema-filter" style="background:#4aa0eb;color:#fff;">筛选</button>
+      <button id="reset-cinema-filter" style="background:#e76f24;color:#fff;">重置</button>
+    </div>
+  `;
+
+      document.getElementById('apply-cinema-filter').addEventListener('click', () => {
+        const center = document.getElementById('center-cinema-select').value;
+        const radius = parseFloat(document.getElementById('radius-input').value);
+        if (!center || isNaN(radius) || radius < 0) { alert('请选择中心影院并输入半径'); return; }
+        fetch('/filter_cinemas', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ center_cinema: center, radius_km: radius })
+        }).then(r => r.json()).then(json => {
+          const allowed = new Set(json.cinemas || []);
+          document.querySelectorAll('#cinema-tags .tag').forEach(span => {
+            if (allowed.has(span.dataset.value)) {
+              span.style.display = 'inline-flex'; span.classList.add('selected');
+              selectedCinemas.add(span.dataset.value);
+            } else {
+              span.style.display = 'none'; span.classList.remove('selected');
+              selectedCinemas.delete(span.dataset.value);
+            }
+          });
+          renderMovieGrid();
+        }).catch(err => { console.error(err); alert('距离筛选失败'); });
+      });
+
+      document.getElementById('reset-cinema-filter').addEventListener('click', () => {
+        document.getElementById('radius-input').value = '';
+        document.querySelectorAll('#cinema-tags .tag').forEach(span => {
+          span.style.display = 'inline-flex'; span.classList.add('selected');
+          selectedCinemas.add(span.dataset.value);
+        });
+        renderMovieGrid();
+      });
+    }
+
+    // ======== Movie Grid ========
+    function getFilteredMovies() {
+      return uniqueMoviesRaw.filter(m => {
+        if (searchQuery && !m.title.toLowerCase().includes(searchQuery)) return false;
+        const hasDate = (m.dates || []).some(d => selectedDates.has(d));
+        if (!hasDate) return false;
+        const d = m.director || '无导演';
+        const u = m.unit || '未知';
+        if (!selectedDirectors.has(d)) return false;
+        if (!selectedUnits.has(u)) return false;
+        const hasCinema = m.cinemas.some(c => selectedCinemas.has(c));
+        if (!hasCinema) return false;
+        return true;
+      });
+    }
+
+    function renderMovieGrid() {
+      const grid = document.getElementById('movie-grid');
+      const noMsg = document.getElementById('no-movies-msg');
+      grid.innerHTML = '';
+
+      const filtered = getFilteredMovies();
+      if (filtered.length === 0) {
+        noMsg.style.display = 'block'; grid.style.display = 'none'; return;
+      }
+      noMsg.style.display = 'none'; grid.style.display = 'grid';
+
+      const colors = ['#4aa0eb', '#5b8def', '#6c7cf0', '#7d6bf1', '#8e5af2', '#9f49f3', '#b038f4', '#c127f5', '#d216f6', '#e205f7'];
+
+      filtered.forEach((m, idx) => {
+        const card = document.createElement('div');
+        card.className = 'movie-card' + (interestList.has(m.key) ? ' interested' : '');
+        const scheduleLines = (m.screenings || []).slice(0, 20).map(s =>
+          `${s.date} ${s.start_time} @${s.cinema_name}`).join('\n');
+        const scheduleInfo = scheduleLines.length > 0 ? scheduleLines
+          : (m.dates || []).map(d => `${d}`).join('\n');
+        card.title = `${m.title}\n导演：${m.director}\n单元：${m.unit || '未知'}\n──排期──\n${scheduleInfo}`;
+
+        const color = colors[idx % colors.length];
+        const isInList = interestList.has(m.key);
+
+        card.innerHTML = `
+      <div class="movie-card-left" style="background:${color}">${m.title.charAt(0)}</div>
+      <div class="movie-card-body">
+        <div class="movie-title">${m.title}</div>
+        <div class="movie-meta">${m.director}</div>
+        <div class="movie-meta-row">
+          <span class="movie-unit-tag">${m.unit || '未知'}</span>
+          <span class="movie-count-tag">${m.screening_count}场 · ${m.dates.length}天</span>
+        </div>
+      </div>
+      <button class="interest-toggle${isInList ? ' active' : ''}">${isInList ? '✓' : '+'}</button>
+    `;
+
+        card.querySelector('.interest-toggle').addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleInterest(m.key);
+        });
+
+        card.addEventListener('dblclick', () => {
+          const q = encodeURIComponent(m.title.replace(/\(4K\)/g, ''));
+          window.open(`https://www.douban.com/search?cat=1002&q=${q}`, '_blank');
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ======== Interest List (Shopping Cart) ========
+    function toggleInterest(key) {
+      if (interestList.has(key)) { interestList.delete(key); }
+      else { interestList.add(key); }
+      updateCartBadge();
+      renderMovieGrid();
+    }
+
+    function updateCartBadge() {
+      const badge = document.getElementById('cart-badge');
+      badge.innerText = interestList.size;
+      document.getElementById('show-timeline-btn').disabled = (interestList.size === 0);
+    }
+
+    function renderCartDropdown() {
+      const dd = document.getElementById('cart-dropdown');
+      const items = uniqueMoviesRaw.filter(m => interestList.has(m.key));
+      const total = items.reduce((sum, m) => sum + m.screening_count, 0);
+      let html = `<div class="cart-header">
+    <span>已选 ${interestList.size} 部</span>
+    <span style="color:#999;">共${total}场</span>
+  </div>`;
+      if (interestList.size > 0) {
+        html += `<div style="padding:4px 8px;border-bottom:1px solid #eee;">
+      <button id="cart-clear-all" style="width:100%;padding:2px 0;font-size:0.8rem;border:1px solid #e76f24;border-radius:3px;cursor:pointer;background:#fff;color:#e76f24;">全部清空</button>
+    </div>`;
+      }
+      if (interestList.size === 0) {
+        html += '<div class="cart-empty">尚未选择影片</div>';
+      } else {
+        items.forEach(m => {
+          html += `<div class="cart-item">
+        <span class="cart-item-title" title="${m.title} · ${m.director}">${m.title}</span>
+        <span class="cart-item-del" data-key="${m.key}" title="移除">✕</span>
+      </div>`;
+        });
+      }
+      dd.innerHTML = html;
+
+      // Clear all
+      const clearBtn = document.getElementById('cart-clear-all');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          interestList.clear();
+          updateCartBadge();
+          renderCartDropdown();
+          if (currentMode === 'browse') renderMovieGrid();
+          else { refreshTimeline(); }
+        });
+      }
+
+      // Delete individual
+      dd.querySelectorAll('.cart-item-del').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          interestList.delete(btn.dataset.key);
+          updateCartBadge();
+          renderCartDropdown();
+          if (currentMode === 'browse') renderMovieGrid();
+          else { refreshTimeline(); }
+        });
+      });
+    }
+
+    function toggleCartDropdown(e) {
+      e.stopPropagation();
+      const dd = document.getElementById('cart-dropdown');
+      if (dd.style.display === 'block') { dd.style.display = 'none'; return; }
+      renderCartDropdown();
+      dd.style.display = 'block';
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', () => {
+      document.getElementById('cart-dropdown').style.display = 'none';
+    });
+
+    // ======== Mode Switching ========
+    function showTimelineMode() {
+      if (interestList.size === 0) return;
+
+      fetch('/api/timeline_for_movies', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ movie_keys: Array.from(interestList) })
+      }).then(r => r.json()).then(data => {
+        filteredTimelineData = data.timeline_data;
+        filteredDates = data.dates;
+        currentMode = 'timeline';
+
+        document.getElementById('browse-view').style.display = 'none';
+        document.getElementById('timeline-view').style.display = 'flex';
+        document.getElementById('search-input').style.display = 'none';
+        document.getElementById('show-timeline-btn').style.display = 'none';
+        document.getElementById('filter-btn').style.display = 'inline-block';
+        document.getElementById('date-select').style.display = '';
+
+        initDateSelect(null);
+        if (filteredDates.length > 0) {
+          document.getElementById('no-data-msg').style.display = 'none';
+          currentDate = filteredDates[0];
+          renderTimelineForDate(currentDate);
+        } else {
+          document.getElementById('no-data-msg').style.display = 'block';
+          document.getElementById('timeline-content').innerHTML = '';
+        }
+      }).catch(err => {
+        console.error(err); alert('加载时间轴失败');
+      });
+    }
+
+    function refreshTimeline() {
+      if (interestList.size === 0) return;
+      const savedDate = currentDate;
+
+      fetch('/api/timeline_for_movies', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ movie_keys: Array.from(interestList) })
+      }).then(r => r.json()).then(data => {
+        filteredTimelineData = data.timeline_data;
+        filteredDates = data.dates;
+        initDateSelect(savedDate);
+        const active = filteredDates.includes(savedDate) ? savedDate : (filteredDates[0] || null);
+        if (active) {
+          document.getElementById('no-data-msg').style.display = 'none';
+          currentDate = active;
+          renderTimelineForDate(active);
+        } else {
+          document.getElementById('no-data-msg').style.display = 'block';
+          document.getElementById('timeline-content').innerHTML = '';
+        }
+      }).catch(err => { console.error(err); });
+    }
+
+    function backToBrowse() {
+      currentMode = 'browse';
+      selectedMovies = []; clearMapAndInfo();
+      document.getElementById('browse-view').style.display = 'flex';
+      document.getElementById('timeline-view').style.display = 'none';
+      document.getElementById('search-input').style.display = '';
+      document.getElementById('show-timeline-btn').style.display = '';
+      document.getElementById('filter-btn').style.display = 'none';
+      document.getElementById('date-select').style.display = 'none';
+      renderMovieGrid();
+    }
+
+    // ======== Date Tabs ========
+    const WEEKDAY = ['日', '一', '二', '三', '四', '五', '六'];
+
+    function initDateSelect(preselected) {
+      const sel = document.getElementById('date-select');
+      sel.innerHTML = '';
+      filteredDates.forEach((d) => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        const dt = new Date(d + 'T00:00:00');
+        const wd = WEEKDAY[dt.getDay()];
+        opt.innerText = `${d} (周${wd})`;
+        if (d === preselected) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      // Re-bind change handler (remove old first)
+      const newSel = sel.cloneNode(true);
+      sel.parentNode.replaceChild(newSel, sel);
+      newSel.addEventListener('change', function () {
+        currentDate = this.value;
+        selectedMovies = []; clearMapAndInfo();
+        renderTimelineForDate(currentDate);
+      });
+    }
+
+    // ======== Timeline Rendering ========
+    function formatTimeWithDay(timeStr) {
+      let [h, m] = timeStr.split(':').map(Number);
+      let day = '';
+      if (h >= 24) {
+        const dayCount = Math.floor(h / 24);
+        h = h % 24;
+        day = dayCount === 1 ? '次日' : `第${dayCount}日`;
+      }
+      return `${day}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    function renderTimelineForDate(dateStr) {
+      const container = document.getElementById('timeline-content');
+      container.innerHTML = '';
+      const data = filteredTimelineData[dateStr];
+      if (!data || data.items.length === 0) {
+        document.getElementById('scale-min').innerText = '--:--';
+        document.getElementById('scale-max').innerText = '--:--';
+        return;
+      }
+
+      // Cinema → color mapping
+      const cinemaColors = {};
+      const palette = ['#4aa0eb','#5b8def','#6c7cf0','#e76f24','#f5a623','#34c759',
+        '#af52de','#ff3b30','#007aff','#ff9500','#5856d6','#00c7be','#ff2d55','#8e5af2'];
+      const getCinemaColor = (cinema) => {
+        if (!cinemaColors[cinema]) {
+          let hash = 0;
+          for (let i = 0; i < cinema.length; i++) hash = ((hash << 5) - hash) + cinema.charCodeAt(i);
+          cinemaColors[cinema] = palette[Math.abs(hash) % palette.length];
+        }
+        return cinemaColors[cinema];
+      };
+
+      const items = data.items.map(m => {
+        const [sh, sm] = m.start_time.split(':').map(Number);
+        const [eh, em] = m.end_time.split(':').map(Number);
+        return { ...m, start_min: sh * 60 + sm, end_min: eh * 60 + em };
+      });
+
+      const minStart = Math.min(...items.map(x => x.start_min));
+      const maxEnd = Math.max(...items.map(x => x.end_min));
+      const span = Math.max(maxEnd - minStart, 1);
+
+      const minH = Math.floor(minStart / 60), minM = minStart % 60;
+      const maxH = Math.floor(maxEnd / 60), maxMM = maxEnd % 60;
+      let prefix = '', displayH = maxH;
+      if (maxH >= 24) { displayH = maxH - 24; prefix = '次日'; }
+      document.getElementById('scale-min').innerText = `${String(minH).padStart(2, '0')}:${String(minM).padStart(2, '0')}`;
+      document.getElementById('scale-max').innerText = `${prefix}${String(displayH).padStart(2, '0')}:${String(maxMM).padStart(2, '0')}`;
+
+      items.sort((a, b) => a.start_min - b.start_min);
+
+      // Time grid lines (each full hour)
+      const gridHourStart = Math.ceil(minStart / 60);
+      const gridHourEnd = Math.floor(maxEnd / 60);
+      for (let h = gridHourStart; h <= gridHourEnd; h++) {
+        const pct = ((h * 60 - minStart) / span) * 100;
+        const line = document.createElement('div');
+        line.style.cssText = `position:absolute;left:${pct}%;top:0;bottom:0;width:1px;border-left:1px dashed #ddd;z-index:0;pointer-events:none;`;
+        const label = document.createElement('span');
+        label.style.cssText = 'position:absolute;top:-16px;left:-12px;font-size:0.65rem;color:#bbb;white-space:nowrap;';
+        const displayHr = h % 24;
+        label.innerText = `${String(displayHr).padStart(2,'0')}:00`;
+        line.appendChild(label);
+        container.appendChild(line);
+      }
+
+      items.forEach(item => {
+        const offsetPct = (item.start_min - minStart) / span * 100;
+        const widthPct = (item.end_min - item.start_min) / span * 100;
+
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'timeline-row';
+
+        const cinemaColor = getCinemaColor(item.cinema_name);
+
+        const movieDiv = document.createElement('div');
+        movieDiv.className = 'movie-item';
+        movieDiv.dataset.id = item.id;
+        movieDiv.dataset.title = item.title;
+        movieDiv.dataset.date = dateStr;
+        movieDiv.dataset.start_time = item.start_time;
+        movieDiv.dataset.end_time = item.end_time;
+        movieDiv.dataset.cinema_name = item.cinema_name;
+        movieDiv.dataset.cinema_address = item.cinema_address;
+        movieDiv.style.left = offsetPct + '%';
+        movieDiv.style.width = Math.max(widthPct, 2) + '%';
+        movieDiv.style.background = cinemaColor;
+        movieDiv.style.borderColor = cinemaColor;
+        movieDiv.innerText = `${item.title} @${item.cinema_name}`;
+
+        movieDiv.title =
+          `双击打开豆瓣搜索\n\n` +
+          `名称：${item.title}\n导演：${item.director}\n单元：${item.unit}\n` +
+          `时间：${item.start_time} - ${formatTimeWithDay(item.end_time)}\n` +
+          `影院：${item.cinema_name}\n地址：${item.cinema_address}`;
+
+        movieDiv.addEventListener('click', function (e) {
+          const id = parseInt(this.dataset.id);
+          const idx = selectedMovies.findIndex(m => m.id === id);
+          if (idx === -1) {
+            selectedMovies.push({
+              id, title: this.dataset.title, date: this.dataset.date,
+              start_time: this.dataset.start_time, end_time: this.dataset.end_time,
+              cinema_name: this.dataset.cinema_name, cinema_address: this.dataset.cinema_address
+            });
+            this.classList.add('selected');
+          } else {
+            selectedMovies.splice(idx, 1);
+            this.classList.remove('selected');
+          }
+          const btn = document.getElementById('show-map-btn');
+          btn.disabled = (selectedMovies.length < 2);
+          btn.innerText = selectedMovies.length >= 2 ? `路线规划 (${selectedMovies.length}场)` : '路线规划';
+          e.stopPropagation();
+        });
+
+        movieDiv.addEventListener('dblclick', function (e) {
+          const q = encodeURIComponent(item.title.replace(/\(4K\)/g, ''));
+          window.open(`https://www.douban.com/search?cat=1002&q=${q}`, '_blank');
+          e.stopPropagation();
+        });
+
+        // "Other showtimes" button
+        const infoBtn = document.createElement('span');
+        infoBtn.innerText = '🔍';
+        infoBtn.title = '查看其他排期';
+        infoBtn.style.cssText = 'position:absolute;top:4px;right:4px;font-size:1rem;background:rgba(0,0,0,0.5);color:#fff;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:5;cursor:pointer;';
+        infoBtn.addEventListener('mouseenter', () => { infoBtn.style.transform = 'scale(1.1)'; });
+        infoBtn.addEventListener('mouseleave', () => { infoBtn.style.transform = 'scale(1)'; });
+        infoBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          showOtherShowtimes(item.title, dateStr, item.start_time, item.cinema_name);
+        });
+        movieDiv.appendChild(infoBtn);
+        rowDiv.appendChild(movieDiv);
+        container.appendChild(rowDiv);
+      });
+    }
+
+    // ======== Other Showtimes Modal ========
+    function closeOtherModal() {
+      document.getElementById('other-modal-overlay').style.display = 'none';
+      document.getElementById('other-modal-dialog').style.display = 'none';
+    }
+
+    function showOtherShowtimes(movieTitle, currDate, currStart, currCinema) {
+      document.getElementById('other-modal-header-title').innerText = `"${movieTitle}" 的其他排期`;
+
+      const results = [];
+      Object.keys(filteredTimelineData).forEach(dateStr => {
+        filteredTimelineData[dateStr].items.forEach(item => {
+          if (item.title === movieTitle) {
+            results.push({
+              date: dateStr, start_time: item.start_time,
+              end_time: formatTimeWithDay(item.end_time), cinema: item.cinema_name
+            });
+          }
+        });
+      });
+      results.sort((a, b) => a.date !== b.date ? a.date.localeCompare(b.date) : a.start_time.localeCompare(b.start_time));
+
+      const contentDiv = document.getElementById('other-modal-content');
+      contentDiv.innerHTML = '';
+      if (results.length === 0) {
+        contentDiv.innerHTML = "<p style='color:#666'>暂无其他排期。</p>";
+      } else {
+        const ul = document.createElement('ul');
+        ul.style.padding = '0 16px'; ul.style.listStyle = 'none'; ul.style.margin = '0';
+        results.forEach(r => {
+          const li = document.createElement('li');
+          li.style.marginBottom = '8px'; li.style.padding = '4px 8px'; li.style.borderRadius = '4px';
+          if (r.date === currDate && r.start_time === currStart && r.cinema === currCinema) {
+            li.style.color = '#c00'; li.style.backgroundColor = 'rgba(255,200,200,0.5)'; li.style.fontWeight = 'bold';
+          } else { li.style.color = '#333'; }
+          li.innerText = `${r.date}  ${r.start_time} - ${r.end_time}  @ ${r.cinema}`;
+          ul.appendChild(li);
+        });
+        contentDiv.appendChild(ul);
+      }
+      document.getElementById('other-modal-overlay').style.display = 'block';
+      document.getElementById('other-modal-dialog').style.display = 'block';
+    }
+
+    document.getElementById('other-modal-close').addEventListener('click', closeOtherModal);
+    document.getElementById('other-modal-overlay').addEventListener('click', closeOtherModal);
+
+    // ======== Route Planning ========
+    function clearMapAndInfo() {
+      document.querySelectorAll('.movie-item.selected').forEach(el => el.classList.remove('selected'));
+      const mb = document.getElementById('show-map-btn');
+      mb.disabled = true; mb.innerText = '路线规划';
+      document.getElementById('distances-list').innerHTML = '';
+      if (window.map) window.map.clearMap();
+    }
+
+    function hasTimeConflict(selected) {
+      const byDate = {};
+      selected.forEach(m => {
+        if (!byDate[m.date]) byDate[m.date] = [];
+        byDate[m.date].push(m);
+      });
+      for (const [date, arr] of Object.entries(byDate)) {
+        const tuples = arr.map(m => ({
+          start: parseInt(m.start_time.split(':')[0]) * 60 + parseInt(m.start_time.split(':')[1]),
+          end: parseInt(m.end_time.split(':')[0]) * 60 + parseInt(m.end_time.split(':')[1]),
+          address: m.cinema_address, title: m.title
+        }));
+        tuples.sort((a, b) => a.start - b.start);
+        for (let i = 0; i < tuples.length - 1; i++) {
+          const cur = tuples[i], nxt = tuples[i + 1];
+          if (cur.start < nxt.end && nxt.start < cur.end) {
+            if (cur.address !== nxt.address) {
+              return { conflict: true, date, firstTitle: cur.title, secondTitle: nxt.title };
+            }
+          }
+        }
+      }
+      return { conflict: false };
+    }
+
+    function onShowMap() {
+      if (selectedMovies.length < 2) { alert('请至少选中两个场次'); return; }
+      const ci = hasTimeConflict(selectedMovies);
+      if (ci.conflict) {
+        alert(`检测到 "${ci.date}" 同一天中，"${ci.firstTitle}" 与 "${ci.secondTitle}" 时间重叠，且不在同一影院，请调整选择。`);
+        return;
+      }
+      selectedMovies.sort((a, b) => {
+        if (a.date !== b.date) return a.date.localeCompare(b.date);
+        return a.start_time.localeCompare(b.start_time);
+      });
+
+      fetch('/route_info', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selected_movies: selectedMovies })
+      }).then(r => r.json()).then(json => {
+        if (!json.points || !json.distances) throw new Error('后端返回格式不正确');
+        drawMapWithRoutes(json);
+      }).catch(err => { console.error(err); alert('获取路线信息失败'); });
+    }
+
+    function drawMapWithRoutes(data) {
+      const pts = data.points, dists = data.distances;
+      const distListDiv = document.getElementById('distances-list');
+      distListDiv.innerHTML = '';
+      if (!window.map) { alert('地图未初始化'); return; }
+      window.map.clearMap();
+      if (pts.length > 0 && pts[0].lng !== null && pts[0].lat !== null) {
+        window.map.setCenter([pts[0].lng, pts[0].lat]);
+      }
+
+      // Point markers
+      pts.forEach((p, idx) => {
+        if (p.lng == null || p.lat == null) return;
+        new AMap.Marker({
+          position: [p.lng, p.lat], map: window.map,
+          label: { content: (idx + 1).toString(), offset: new AMap.Pixel(0, 0) }
+        });
+      });
+
+      if (!window.ridingService) { alert('骑行插件未就绪'); return; }
+
+      // Interleaved: point → transfer → point → transfer → ...
+      let html = '<div style="font-weight:bold;font-size:0.9rem;margin-bottom:10px;color:#333;">📍 路线规划</div>';
+      pts.forEach((p, idx) => {
+        // Point card
+        html += `<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 8px;background:#f8f8f8;border-radius:4px;border-left:3px solid #4aa0eb;margin-bottom:6px;">
+      <span style="background:#4aa0eb;color:#fff;border-radius:50%;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:bold;flex-shrink:0;">${idx + 1}</span>
+      <div style="min-width:0;">
+        <div style="font-weight:bold;font-size:0.82rem;">${p.cinema_name}</div>
+        <div style="font-size:0.78rem;color:#666;">🎬 ${p.movie_title}</div>
+        <div style="font-size:0.75rem;color:#999;">${p.movie_start} — ${p.movie_end}</div>
+      </div>
+    </div>`;
+
+        // Transfer guide (to next point)
+        if (idx < pts.length - 1) {
+          const p1 = p, p2 = pts[idx + 1];
+          if (p1.lng != null && p2.lng != null) {
+            const seg = dists.find(d => d.from_index === idx);
+            if (seg) {
+              let gapMin = 0;
+              try {
+                const e1 = parseInt(p1.movie_end.split(':')[0]) * 60 + parseInt(p1.movie_end.split(':')[1]);
+                const s2 = parseInt(p2.movie_start.split(':')[0]) * 60 + parseInt(p2.movie_start.split(':')[1]);
+                gapMin = Math.max(s2 - e1, 0);
+              } catch { }
+              const distKm = seg.distance_km != null ? seg.distance_km : null;
+              const bikeMin = seg.bike_duration_min != null ? seg.bike_duration_min : null;
+              const busMin = seg.transit_duration_min != null ? seg.transit_duration_min : null;
+              const gapColor = gapMin < 15 ? '#e76f24' : gapMin < 30 ? '#f5a623' : '#4aa0eb';
+
+              html += `<div style="border:1px dashed #ddd;border-radius:6px;padding:6px 10px;margin:4px 0 8px 14px;background:#fafafa;font-size:0.78rem;">
+            <div style="color:#999;margin-bottom:4px;">⬇ ${idx + 1} → ${idx + 2} 换乘</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;">
+              <span style="color:#888;">⏱ 间隔</span><span style="color:${gapColor};font-weight:bold;">${gapMin} 分钟</span>
+              <span style="color:#888;">🚲 骑行</span><span>${distKm != null ? distKm.toFixed(1) + ' km / ' + bikeMin + '分钟' : '—'}</span>
+              <span style="color:#888;">🚌 公交</span><span>${busMin != null ? busMin + ' 分钟' : '—'}</span>
+            </div>
+          </div>`;
+
+              window.ridingService.search([p1.lng, p1.lat], [p2.lng, p2.lat], function (status, result) {
+                if (status === 'complete' && result.routes && result.routes.length) {
+                  const path = result.routes[0].steps.flatMap(st => st.path);
+                  new AMap.Polyline({ map: window.map, path: path, showDir: true, strokeWeight: 4, strokeOpacity: 0.7 });
+                }
+              });
+            }
+          }
+        }
+      });
+
+      distListDiv.innerHTML = html;
+    }
+
+    // ======== Event Bindings ========
+    function bindEvents() {
+      document.getElementById('show-timeline-btn').addEventListener('click', showTimelineMode);
+      document.getElementById('filter-btn').addEventListener('click', backToBrowse);
+      document.getElementById('cart-badge').addEventListener('click', toggleCartDropdown);
+      document.getElementById('show-map-btn').addEventListener('click', onShowMap);
+
+      // Browse select-all / deselect-all for filtered movies
+      document.getElementById('browse-select-all').addEventListener('click', () => {
+        getFilteredMovies().forEach(m => interestList.add(m.key));
+        updateCartBadge();
+        renderMovieGrid();
+      });
+      document.getElementById('browse-deselect-all').addEventListener('click', () => {
+        getFilteredMovies().forEach(m => interestList.delete(m.key));
+        updateCartBadge();
+        renderMovieGrid();
+      });
+      document.getElementById('btn-clear-selection').addEventListener('click', () => {
+        selectedMovies = []; clearMapAndInfo();
+      });
+
+      // Search
+      let searchTimer;
+      document.getElementById('search-input').addEventListener('input', (e) => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+          searchQuery = e.target.value.trim().toLowerCase();
+          renderMovieGrid();
+        }, 300);
+      });
+
+      // Group select/deselect
+      const getSetByName = (grp) => {
+        if (grp === 'date') return selectedDates;
+        if (grp === 'director') return selectedDirectors;
+        if (grp === 'unit') return selectedUnits;
+        return selectedCinemas;
+      };
+      document.querySelectorAll('.btn-select-all').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const grp = btn.dataset.group;
+          const container = document.getElementById(grp + '-tags');
+          const set = getSetByName(grp);
+          container.querySelectorAll('.tag').forEach(span => {
+            if (span.style.display !== 'none') { span.classList.add('selected'); set.add(span.dataset.value); }
+          });
+          renderMovieGrid();
+        });
+      });
+      document.querySelectorAll('.btn-deselect-all').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const grp = btn.dataset.group;
+          const container = document.getElementById(grp + '-tags');
+          const set = getSetByName(grp);
+          // Date group: keep at least 1 selected
+          if (grp === 'date') {
+            const visible = container.querySelectorAll('.tag:not([style*="display:none"])');
+            if (visible.length <= 1) { alert('至少需要选择一个日期'); return; }
+          }
+          container.querySelectorAll('.tag').forEach(span => {
+            span.classList.remove('selected'); set.delete(span.dataset.value);
+          });
+          renderMovieGrid();
+        });
+      });
+
+      // Collapse toggles
+      ['date', 'director', 'unit', 'cinema'].forEach(grp => {
+        document.getElementById(grp + '-header').addEventListener('click', () => {
+          const content = document.getElementById(grp + '-tags');
+          const header = document.getElementById(grp + '-header');
+          const isCollapsed = content.classList.toggle('collapsed');
+          if (isCollapsed) {
+            header.innerText = '▶ ' + header.innerText.replace(/[▶▼]\s*/, '');
+          } else {
+            header.innerText = '▼ ' + header.innerText.replace(/[▶▼]\s*/, '');
+          }
+        });
+      });
+
+      // Settings
+      document.getElementById('settings-btn').addEventListener('click', openSettingsModal);
+      document.getElementById('btn-settings-cancel').addEventListener('click', closeSettingsModal);
+      document.getElementById('settings-modal-overlay').addEventListener('click', closeSettingsModal);
+      document.getElementById('btn-settings-save').addEventListener('click', saveSettings);
+
+      // Divider drag
+      initDivider();
+    }
+
+    function openSettingsModal() {
+      document.getElementById('cfg-status').style.display = 'none';
+      fetch('/api/config').then(r => r.json()).then(data => {
+        const c = data.config || {};
+        document.getElementById('cfg-amap-key').value = c.amap_key || '';
+        document.getElementById('cfg-jsapi-key').value = c.amap_jsapi_key || '';
+        document.getElementById('cfg-security-code').value = c.amap_security_code || '';
+      }).catch(() => { });
+      document.getElementById('settings-modal-overlay').style.display = 'block';
+      document.getElementById('settings-modal-dialog').style.display = 'block';
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal-overlay').style.display = 'none';
+      document.getElementById('settings-modal-dialog').style.display = 'none';
+    }
+
+    function saveSettings() {
+      const payload = {
+        amap_key: document.getElementById('cfg-amap-key').value.trim(),
+        amap_jsapi_key: document.getElementById('cfg-jsapi-key').value.trim(),
+        amap_security_code: document.getElementById('cfg-security-code').value.trim(),
+      };
+      const st = document.getElementById('cfg-status');
+      fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(r => r.json()).then(data => {
+          if (data.status === 'ok') {
+            st.style.color = '#4aa0eb'; st.innerText = '保存成功，正在刷新...'; st.style.display = 'block';
+            setTimeout(() => window.location.reload(true), 800);
+          } else {
+            st.style.color = '#e76f24'; st.innerText = data.message || '保存失败'; st.style.display = 'block';
+          }
+        }).catch(err => { st.style.color = '#e76f24'; st.innerText = '请求失败：' + err.message; st.style.display = 'block'; });
+    }
+
+    // Divider
+    function initDivider() {
+      const divider = document.getElementById('divider');
+      let isDragging = false, startY = 0, startHeight = 0;
+      divider.addEventListener('mousedown', function (e) {
+        isDragging = true; startY = e.clientY;
+        startHeight = document.getElementById('timeline-wrapper-tv').getBoundingClientRect().height;
+        document.body.style.cursor = 'row-resize'; e.preventDefault();
+      });
+      document.addEventListener('mousemove', function (e) {
+        if (!isDragging) return;
+        let newH = startHeight + (e.clientY - startY);
+        const minH = 100, maxH = window.innerHeight * 0.8;
+        if (newH < minH) newH = minH;
+        if (newH > maxH) newH = maxH;
+        document.getElementById('timeline-wrapper-tv').style.height = newH + 'px';
+        e.preventDefault();
+      });
+      document.addEventListener('mouseup', function () {
+        if (isDragging) { isDragging = false; document.body.style.cursor = 'default'; }
+      });
+    }
+
+    window.onload = initPage;
+  </script>
+</body>
+
+</html>

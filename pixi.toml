@@ -1,0 +1,15 @@
+[workspace]
+authors = ["guenyumieu <guenyumieu@gmail.com>"]
+channels = ["conda-forge"]
+name = "film"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+pandas = ">=3.0.2,<4"
+flask = ">=3.1.3,<4"
+requests = ">=2.33.1,<3"
+python = ">=3.14.4,<3.15"
+openpyxl = ">=3.1,<4"
