@@ -1,6 +1,7 @@
 # 🎬 电影节排片小助手
 
-> 一个帮助影迷规划电影节观影行程的 Web 工具，支持上海国际电影节、北京国际电影节等排片表。
+> 一个帮助影迷规划电影节观影行程的 Web 工具，支持上海国际电影节排片表。以后只要上影节的排片excel格式不变，就可以一直使用。(北影节的排片表不带时长，因此不能适用该网页)
+
 
 ## 功能
 
@@ -12,7 +13,8 @@
 
 ## 截图
 
-> TODO: 添加截图
+![选片界面，选择自己感兴趣的电影，可以使得时间轴显示更清爽](./figures/选片.png)
+![时间轴界面，点击可以选片并规划路线。](./figures/规划.png)
 
 ## 技术栈
 
@@ -36,7 +38,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-username/film.git
+git clone https://github.com/GuenyuMieu/SIFFPlanner.git
 cd film
 
 # 使用 Pixi 启动（自动创建环境）
@@ -53,10 +55,11 @@ python app.py
 
 部分功能（路线规划、距离筛选）需要高德地图 API 密钥：
 
-1. 前往 [高德开放平台](https://lbs.amap.com/) 注册并创建应用
+1. 前往 [高德开放平台](https://lbs.amap.com/) 注册并到控制台应用部分创建应用
+![高德API申请截图，注意绑定服务部分不要选错了](./figures/高德API.png)
 2. 申请 **Web 服务 API Key** 和 **Web JSAPI Key**
 3. 在页面右上角 ⚙️ 设置中填入密钥，或直接编辑 `amap_config.json`
-
+![将前面申请得到的API依次填入](./figures/高德API填写.png)
 > 不配置地图密钥不影响电影浏览和时间线视图功能。
 
 ## 使用指南
