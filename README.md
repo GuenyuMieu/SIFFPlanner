@@ -42,7 +42,7 @@
 ```bash
 # 克隆仓库
 git clone https://github.com/GuenyuMieu/SIFFPlanner.git
-cd film
+cd SIFFPlanner-main
 
 # 使用 Pixi 启动（自动创建环境）
 pixi run app
