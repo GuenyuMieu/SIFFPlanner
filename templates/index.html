@@ -465,8 +465,10 @@
     }
 
     .movie-item.selected {
-      background: #ff8c42;
-      border-color: #e76f24;
+      outline: 3px dashed #000;
+      outline-offset: -3px;
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.35);
+      z-index: 2;
     }
 
     #divider {
@@ -631,6 +633,12 @@
   <div id="page-title"
     style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:8px 20px;flex-shrink:0;display:flex;align-items:center;gap:16px;">
     <span style="font-size:1.15rem;font-weight:bold;">🎬 上海国际电影节排片小助手</span>
+    <a href="https://github.com/GuenyuMieu/SIFFPlanner" target="_blank" title="GitHub 项目地址"
+       style="margin-left:auto;color:#fff;text-decoration:none;font-size:0.95rem;display:flex;align-items:center;gap:6px;opacity:0.85;transition:opacity 0.2s;"
+       onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
   </div>
 
   <!-- ======== Top Bar ======== -->
@@ -780,7 +788,10 @@
   </div>
 
   <script>
+    console.log("=== 页面脚本开始执行 ===");
+
     // ======== LayUI Upload ========
+    try {
     layui.use(['upload', 'layer'], function () {
       var upload = layui.upload;
       var layer = layui.layer;
@@ -809,8 +820,12 @@
         error: function () { layer.alert('上传请求失败，请检查网络连接', { icon: 2 }); }
       });
     });
+    } catch(e) {
+      console.warn("LayUI上传组件初始化失败（CDN可能不可用）:", e.message);
+    }
 
     // ======== Global State ========
+    const amapConfigured = {{ 'true' if amap_configured else 'false' }};
     const uniqueMoviesRaw = JSON.parse('{{ unique_movies | tojson | safe }}');
     const timelineDataAll = JSON.parse('{{ timeline_data | tojson | safe }}');
 
@@ -830,6 +845,9 @@
 
     // ======== Init ========
     function initPage() {
+      try {
+      console.log("initPage start, amapConfigured:", amapConfigured);
+
       fetch("/api/config").then(r => r.json()).then(cfg => {
         if (!cfg.configured) {
           const banner = document.createElement("div");
@@ -839,15 +857,25 @@
         }
       }).catch(() => { });
 
+      console.log("calling initMap...");
       initMap();
+      console.log("calling buildFilterPanel...");
       buildFilterPanel();
+      console.log("calling bindEvents...");
       bindEvents();
+      console.log("calling initExcelSelector...");
       initExcelSelector();
 
       // Default: all movies selected, start in timeline mode
       interestList = new Set(uniqueMoviesRaw.map(m => m.key));
       updateCartBadge();
+      console.log("calling showTimelineMode...");
       showTimelineMode();
+      console.log("initPage done");
+      } catch(e) {
+        console.error("initPage error:", e.message, e.stack);
+        alert("页面初始化失败: " + e.message);
+      }
     }
 
     let excelCurrent = '';
@@ -930,9 +958,14 @@
     }
 
     function initMap() {
-      if (typeof AMap === 'undefined') { console.warn("AMap未定义"); return; }
-      window.map = new AMap.Map('map', { center: [121.473701, 31.230416], zoom: 12 });
-      AMap.plugin(['AMap.Riding'], function () { window.ridingService = new AMap.Riding(); });
+      if (!amapConfigured || typeof AMap === 'undefined') { console.warn("AMap不可用，跳过地图初始化"); return; }
+      try {
+        window.map = new AMap.Map('map', { center: [121.473701, 31.230416], zoom: 12 });
+        AMap.plugin(['AMap.Riding'], function () { window.ridingService = new AMap.Riding(); });
+      } catch (e) {
+        console.warn("AMap初始化失败:", e.message);
+        window.map = null;
+      }
     }
 
     // ======== Filter Panel ========
@@ -985,10 +1018,11 @@
       renderTags(document.getElementById('unit-tags'), allUnits, 'unit');
       renderTags(document.getElementById('cinema-tags'), allCinemas, 'cinema');
 
-      // Cinema distance filter
+      // Cinema distance filter (requires AMap API key)
       const filterRow = document.getElementById('cinema-filter-row');
       const cinemaArr = Array.from(allCinemas).sort();
-      filterRow.innerHTML = `
+      if (amapConfigured) {
+        filterRow.innerHTML = `
     <div class="cf-row">
       <span>中心影院:</span>
       <select id="center-cinema-select" style="flex:1;min-width:0;">${cinemaArr.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
@@ -1001,36 +1035,39 @@
     </div>
   `;
 
-      document.getElementById('apply-cinema-filter').addEventListener('click', () => {
-        const center = document.getElementById('center-cinema-select').value;
-        const radius = parseFloat(document.getElementById('radius-input').value);
-        if (!center || isNaN(radius) || radius < 0) { alert('请选择中心影院并输入半径'); return; }
-        fetch('/filter_cinemas', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ center_cinema: center, radius_km: radius })
-        }).then(r => r.json()).then(json => {
-          const allowed = new Set(json.cinemas || []);
+        document.getElementById('apply-cinema-filter').addEventListener('click', () => {
+          const center = document.getElementById('center-cinema-select').value;
+          const radius = parseFloat(document.getElementById('radius-input').value);
+          if (!center || isNaN(radius) || radius < 0) { alert('请选择中心影院并输入半径'); return; }
+          fetch('/filter_cinemas', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ center_cinema: center, radius_km: radius })
+          }).then(r => r.json()).then(json => {
+            const allowed = new Set(json.cinemas || []);
+            document.querySelectorAll('#cinema-tags .tag').forEach(span => {
+              if (allowed.has(span.dataset.value)) {
+                span.style.display = 'inline-flex'; span.classList.add('selected');
+                selectedCinemas.add(span.dataset.value);
+              } else {
+                span.style.display = 'none'; span.classList.remove('selected');
+                selectedCinemas.delete(span.dataset.value);
+              }
+            });
+            renderMovieGrid();
+          }).catch(err => { console.error(err); alert('距离筛选失败'); });
+        });
+
+        document.getElementById('reset-cinema-filter').addEventListener('click', () => {
+          document.getElementById('radius-input').value = '';
           document.querySelectorAll('#cinema-tags .tag').forEach(span => {
-            if (allowed.has(span.dataset.value)) {
-              span.style.display = 'inline-flex'; span.classList.add('selected');
-              selectedCinemas.add(span.dataset.value);
-            } else {
-              span.style.display = 'none'; span.classList.remove('selected');
-              selectedCinemas.delete(span.dataset.value);
-            }
+            span.style.display = 'inline-flex'; span.classList.add('selected');
+            selectedCinemas.add(span.dataset.value);
           });
           renderMovieGrid();
-        }).catch(err => { console.error(err); alert('距离筛选失败'); });
-      });
-
-      document.getElementById('reset-cinema-filter').addEventListener('click', () => {
-        document.getElementById('radius-input').value = '';
-        document.querySelectorAll('#cinema-tags .tag').forEach(span => {
-          span.style.display = 'inline-flex'; span.classList.add('selected');
-          selectedCinemas.add(span.dataset.value);
         });
-        renderMovieGrid();
-      });
+      } else {
+        filterRow.innerHTML = '<div class="cf-row" style="color:#999;font-size:0.78rem;padding:2px 4px;">需配置高德API后才能按距离筛选</div>';
+      }
     }
 
     // ======== Movie Grid ========
@@ -1467,7 +1504,7 @@
       const mb = document.getElementById('show-map-btn');
       mb.disabled = true; mb.innerText = '路线规划';
       document.getElementById('distances-list').innerHTML = '';
-      if (window.map) window.map.clearMap();
+      if (window.map && typeof window.map.clearMap === 'function') window.map.clearMap();
     }
 
     function hasTimeConflict(selected) {
@@ -1520,7 +1557,7 @@
       const pts = data.points, dists = data.distances;
       const distListDiv = document.getElementById('distances-list');
       distListDiv.innerHTML = '';
-      if (!window.map) { alert('地图未初始化'); return; }
+      if (!window.map || typeof window.map.clearMap !== 'function') { alert('地图未初始化'); return; }
       window.map.clearMap();
       if (pts.length > 0 && pts[0].lng !== null && pts[0].lat !== null) {
         window.map.setCenter([pts[0].lng, pts[0].lat]);

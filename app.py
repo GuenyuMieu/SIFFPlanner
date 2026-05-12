@@ -102,11 +102,17 @@ for item in raw_movies:
 def geocode_address(address: str):
     """
     调用高德地理编码，并将结果缓存。每次请求前按 GEOCODE_INTERVAL 等待，保证 QPS 不超限。
+    如果高德 Key 未配置，直接返回 None，避免无效 HTTP 请求。
     """
     global _last_geocode_time
 
     if address in geocode_cache:
         return geocode_cache[address]
+
+    if not AMAP_KEY:
+        lng, lat = None, None
+        geocode_cache[address] = (lng, lat)
+        return lng, lat
 
     with _geocode_lock:
         elapsed = time.time() - _last_geocode_time
@@ -142,7 +148,10 @@ def geocode_address(address: str):
 def preload_all_geocodes():
     """
     后台线程预加载所有影院地址，避免后续 QPS 达到上限时再逐条获取。
+    如果高德 Key 未配置，直接跳过。
     """
+    if not AMAP_KEY:
+        return
     for addr in all_addresses:
         geocode_address(addr)
 
@@ -273,7 +282,8 @@ def index():
                            unique_movies=unique_movies,
                            source_name=get_source_name(),
                            amap_key=AMAP_JSAPI_KEY,
-                           amap_security_code=AMAP_SECURITY_CODE)
+                           amap_security_code=AMAP_SECURITY_CODE,
+                           amap_configured=bool(AMAP_KEY and AMAP_JSAPI_KEY))
 
 @app.route("/route_info", methods=["POST"])
 def route_info():
