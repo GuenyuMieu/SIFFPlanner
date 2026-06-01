@@ -527,12 +527,191 @@
       cursor: not-allowed;
     }
 
-    #distances-list {
+    #itinerary-list {
       flex: 1;
-      padding: 6px 10px;
-      font-size: 0.85rem;
-      color: #333;
       overflow-y: auto;
+      padding: 12px;
+      background: #f8fafc;
+      color: #1f2937;
+      font-size: 0.84rem;
+    }
+
+    .itinerary-empty {
+      padding: 14px 12px;
+      color: #7c8798;
+      background: #fff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .itinerary-day {
+      margin-bottom: 10px;
+    }
+
+    .itinerary-day-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .itinerary-day-count {
+      color: #64748b;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .itinerary-summary {
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .itinerary-summary-title {
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .itinerary-summary-meta {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .itinerary-item {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-left: 3px solid #2563eb;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .itinerary-item.same-cinema {
+      border-left-color: #0f766e;
+    }
+
+    .itinerary-item.conflict {
+      display: block;
+      border-left-color: #dc2626;
+      background: #fff7f7;
+    }
+
+    .itinerary-time {
+      color: #2563eb;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .itinerary-title {
+      color: #111827;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .itinerary-meta {
+      margin-top: 3px;
+      color: #64748b;
+      line-height: 1.45;
+    }
+
+    .itinerary-gap {
+      margin: -1px 0 6px 82px;
+      color: #7c8798;
+      font-size: 0.76rem;
+    }
+
+    .itinerary-transfer {
+      margin: -1px 0 8px 82px;
+      padding: 6px 8px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      color: #64748b;
+      font-size: 0.76rem;
+      line-height: 1.45;
+    }
+
+    .itinerary-transfer.tight {
+      border-color: #fed7aa;
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .itinerary-transfer.ready {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .itinerary-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      margin-left: 6px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.7rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .itinerary-badge.warn {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .itinerary-screening {
+      padding: 5px 0;
+      border-top: 1px solid #eef2f7;
+    }
+
+    .itinerary-screening:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .alternative-options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .alt-choice-btn {
+      width: 100%;
+      text-align: left;
+      padding: 7px 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+      color: #334155;
+      cursor: pointer;
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .alt-choice-btn.active {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 700;
+    }
+
+    .alt-choice-btn:hover {
+      border-color: #93c5fd;
     }
 
     #map-container {
@@ -543,6 +722,121 @@
     #map {
       width: 100%;
       height: 100%;
+    }
+
+    :root {
+      --surface: #ffffff;
+      --surface-muted: #f6f8fb;
+      --line: #dfe5ee;
+      --text-main: #172033;
+      --text-muted: #697386;
+      --accent: #2563eb;
+      --accent-hot: #f97316;
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    body {
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #eef2f7;
+      color: var(--text-main);
+    }
+
+    #page-title {
+      background: linear-gradient(135deg, #111827, #1d4ed8) !important;
+      padding: 12px 22px !important;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+    }
+
+    #top-bar {
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    #top-bar button,
+    #controls button,
+    #browse-actions button,
+    #excel-dropdown-btn,
+    #date-select,
+    #search-input {
+      border-radius: 8px !important;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    #top-bar button:hover,
+    #controls button:not(:disabled):hover,
+    #browse-actions button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.14);
+    }
+
+    #show-timeline-btn,
+    #filter-btn,
+    #show-map-btn,
+    #export-itinerary-btn {
+      background: var(--accent) !important;
+      color: #fff;
+    }
+
+    #btn-clear-selection {
+      background: var(--accent-hot) !important;
+    }
+
+    #controls button:disabled {
+      background: #cbd5e1 !important;
+      color: #64748b;
+      box-shadow: none;
+      transform: none;
+    }
+
+    #filter-panel,
+    #left-panel,
+    #timeline-wrapper-tv {
+      background: var(--surface-muted);
+      border-color: var(--line);
+    }
+
+    .movie-card {
+      border-color: #e6ebf2;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .movie-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-soft);
+      transform: translateY(-1px);
+    }
+
+    .movie-card.interested {
+      border-color: var(--accent-hot);
+      background: #fff7ed;
+    }
+
+    .tag-list .tag {
+      border-radius: 999px;
+      background: #e8edf5;
+      color: #334155;
+    }
+
+    .tag-list .tag.selected {
+      background: var(--accent);
+    }
+
+    .timeline-row {
+      background: #eef2f7;
+      border-color: #dbe3ee;
+      border-radius: 8px;
+    }
+
+    .movie-item {
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+    }
+
+    .movie-item.selected {
+      outline: 3px solid #111827;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2), 0 8px 20px rgba(15, 23, 42, 0.18);
     }
 
     /* ======== Other Showtimes Modal ======== */
@@ -736,9 +1030,10 @@
         <div id="left-panel">
           <div id="controls">
             <button id="show-map-btn" disabled>路线规划</button>
+            <button id="export-itinerary-btn" disabled>导出行程单</button>
             <button id="btn-clear-selection">取消选择</button>
           </div>
-          <div id="distances-list"></div>
+          <div id="itinerary-list"></div>
         </div>
         <div id="map-container">
           <div id="map"></div>
@@ -835,6 +1130,10 @@
     let currentMode = 'timeline';          // start in timeline mode
     let currentDate = null;                // active date tab in timeline mode
     let selectedMovies = [];               // selected screenings for route planning
+    let lastRouteData = null;              // latest route result for itinerary export
+    let alternativeChoices = {};           // conflict group key -> selected screening id
+    let selectionSequence = 0;             // preserves first-picked order for alternatives
+    let routeNeedsRefresh = false;         // route data is stale after itinerary switches
 
     // Filter state
     let selectedDates = new Set();
@@ -865,6 +1164,7 @@
       bindEvents();
       console.log("calling initExcelSelector...");
       initExcelSelector();
+      updateSelectionActions();
 
       // Default: all movies selected, start in timeline mode
       interestList = new Set(uniqueMoviesRaw.map(m => m.key));
@@ -1304,8 +1604,10 @@
       sel.parentNode.replaceChild(newSel, sel);
       newSel.addEventListener('change', function () {
         currentDate = this.value;
-        selectedMovies = []; clearMapAndInfo();
+        lastRouteData = null;
+        if (window.map && typeof window.map.clearMap === 'function') window.map.clearMap();
         renderTimelineForDate(currentDate);
+        updateSelectionActions();
       });
     }
 
@@ -1401,6 +1703,9 @@
         movieDiv.style.background = cinemaColor;
         movieDiv.style.borderColor = cinemaColor;
         movieDiv.innerText = `${item.title} @${item.cinema_name}`;
+        if (selectedMovies.some(m => m.id === item.id)) {
+          movieDiv.classList.add('selected');
+        }
 
         movieDiv.title =
           `双击打开豆瓣搜索\n\n` +
@@ -1415,16 +1720,16 @@
             selectedMovies.push({
               id, title: this.dataset.title, date: this.dataset.date,
               start_time: this.dataset.start_time, end_time: this.dataset.end_time,
-              cinema_name: this.dataset.cinema_name, cinema_address: this.dataset.cinema_address
+              cinema_name: this.dataset.cinema_name, cinema_address: this.dataset.cinema_address,
+              selected_order: ++selectionSequence
             });
             this.classList.add('selected');
           } else {
             selectedMovies.splice(idx, 1);
             this.classList.remove('selected');
           }
-          const btn = document.getElementById('show-map-btn');
-          btn.disabled = (selectedMovies.length < 2);
-          btn.innerText = selectedMovies.length >= 2 ? `路线规划 (${selectedMovies.length}场)` : '路线规划';
+          invalidateRoute();
+          updateSelectionActions();
           e.stopPropagation();
         });
 
@@ -1498,65 +1803,363 @@
     document.getElementById('other-modal-close').addEventListener('click', closeOtherModal);
     document.getElementById('other-modal-overlay').addEventListener('click', closeOtherModal);
 
+    // ======== Itinerary Preview / Export ========
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, (ch) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
+    function parseTimeToMinutes(timeStr) {
+      const [h, m] = String(timeStr || '0:0').split(':').map(Number);
+      return (h || 0) * 60 + (m || 0);
+    }
+
+    function formatGapMinutes(mins) {
+      if (mins < 0) return '时间重叠';
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      if (h <= 0) return `${m} 分钟`;
+      if (m === 0) return `${h} 小时`;
+      return `${h} 小时 ${m} 分钟`;
+    }
+
+    function sortedSelectedMovies() {
+      return [...selectedMovies].sort((a, b) => {
+        if (a.date !== b.date) return a.date.localeCompare(b.date);
+        const timeDiff = parseTimeToMinutes(a.start_time) - parseTimeToMinutes(b.start_time);
+        if (timeDiff !== 0) return timeDiff;
+        return (a.selected_order || 0) - (b.selected_order || 0);
+      });
+    }
+
+    function groupMoviesByDate(items) {
+      return items.reduce((acc, item) => {
+        if (!acc[item.date]) acc[item.date] = [];
+        acc[item.date].push(item);
+        return acc;
+      }, {});
+    }
+
+    function sortScreenings(items) {
+      return [...items].sort((a, b) => {
+        if (a.date !== b.date) return a.date.localeCompare(b.date);
+        const timeDiff = parseTimeToMinutes(a.start_time) - parseTimeToMinutes(b.start_time);
+        if (timeDiff !== 0) return timeDiff;
+        return (a.selected_order || 0) - (b.selected_order || 0);
+      });
+    }
+
+    function buildConflictBlocks(dayItems) {
+      const sorted = sortScreenings(dayItems);
+      const blocks = [];
+      let current = null;
+      sorted.forEach((item) => {
+        const start = parseTimeToMinutes(item.start_time);
+        const end = parseTimeToMinutes(item.end_time);
+        if (!current || start >= current.maxEnd) {
+          current = { items: [item], maxEnd: end };
+          blocks.push(current);
+        } else {
+          current.items.push(item);
+          current.maxEnd = Math.max(current.maxEnd, end);
+        }
+      });
+      return blocks;
+    }
+
+    function alternativeKey(items) {
+      if (!items.length) return '';
+      return `${items[0].date}|${items.map(item => item.id).sort((a, b) => a - b).join('-')}`;
+    }
+
+    function getAlternativeActive(items) {
+      const key = alternativeKey(items);
+      const savedId = Number(alternativeChoices[key]);
+      const saved = items.find(item => item.id === savedId);
+      if (saved) return saved;
+      return [...items].sort((a, b) => (a.selected_order || 0) - (b.selected_order || 0))[0] || items[0];
+    }
+
+    function getEffectiveSelectedMovies() {
+      const byDate = groupMoviesByDate(selectedMovies);
+      const effective = [];
+      Object.keys(byDate).sort().forEach((date) => {
+        buildConflictBlocks(byDate[date]).forEach((block) => {
+          effective.push(block.items.length > 1 ? getAlternativeActive(block.items) : block.items[0]);
+        });
+      });
+      return sortScreenings(effective);
+    }
+
+    function invalidateRoute(markRefresh = true) {
+      if (lastRouteData && markRefresh) routeNeedsRefresh = true;
+      lastRouteData = null;
+      if (window.map && typeof window.map.clearMap === 'function') window.map.clearMap();
+    }
+
+    function buildDayPlan(dayItems) {
+      const blocks = buildConflictBlocks(dayItems);
+      const plan = [];
+      blocks.forEach((block) => {
+        const item = block.items.length > 1 ? getAlternativeActive(block.items) : block.items[0];
+        const alternatives = block.items.length > 1 ? block.items : null;
+        const last = plan[plan.length - 1];
+        if (!alternatives && last && last.type === 'visit' && !last.alternatives && last.cinema_address === item.cinema_address) {
+          last.items.push(item);
+          last.end_time = item.end_time;
+        } else {
+          plan.push({
+            type: 'visit',
+            date: item.date,
+            cinema_name: item.cinema_name,
+            cinema_address: item.cinema_address,
+            start_time: item.start_time,
+            end_time: item.end_time,
+            items: [item],
+            alternatives,
+          });
+        }
+      });
+      return plan;
+    }
+
+    function findConflictGroups(items) {
+      const byDate = groupMoviesByDate(items);
+      return Object.keys(byDate).sort().flatMap((date) =>
+        buildConflictBlocks(byDate[date])
+          .filter(block => block.items.length > 1)
+          .map(block => ({ date, items: block.items }))
+      );
+    }
+
+    function describeConflictGroup(group) {
+      return `${group.date}：${group.items.map(m => `${m.start_time} ${m.title}`).join(' / ')}`;
+    }
+
+    function chooseAlternative(groupKey, movieId) {
+      alternativeChoices[groupKey] = Number(movieId);
+      invalidateRoute(true);
+      renderItineraryPanel();
+    }
+
+    function updateSelectionActions() {
+      const count = selectedMovies.length;
+      const effectiveCount = getEffectiveSelectedMovies().length;
+      const routeBtn = document.getElementById('show-map-btn');
+      routeBtn.style.display = amapConfigured ? '' : 'none';
+      routeBtn.disabled = effectiveCount < 2;
+      routeBtn.innerText = effectiveCount >= 2 ? `路线规划 (${effectiveCount}场)` : '路线规划';
+      document.getElementById('export-itinerary-btn').disabled = count === 0;
+      renderItineraryPanel();
+    }
+
+    function renderScreeningRows(items) {
+      return items.map((m) => `<div class="itinerary-screening">
+        <div class="itinerary-title">${escapeHtml(m.title)}</div>
+        <div class="itinerary-meta">${escapeHtml(m.start_time)} - ${escapeHtml(formatTimeWithDay(m.end_time))}</div>
+      </div>`).join('');
+    }
+
+    function renderAlternativeControls(entry) {
+      if (!entry.alternatives) return '';
+      const key = alternativeKey(entry.alternatives);
+      const activeId = entry.items[0].id;
+      return `<div class="alternative-options">
+        ${entry.alternatives.map((m) => `<button type="button" class="alt-choice-btn ${m.id === activeId ? 'active' : ''}" data-alt-group="${escapeHtml(key)}" data-alt-id="${m.id}">
+          ${m.id === activeId ? '当前采用：' : '切换为：'}${escapeHtml(m.start_time)}-${escapeHtml(formatTimeWithDay(m.end_time))} ${escapeHtml(m.title)} @ ${escapeHtml(m.cinema_name)}
+        </button>`).join('')}
+      </div>`;
+    }
+
+    function transferKey(fromVisit, toVisit) {
+      return `${fromVisit.end_time}|${toVisit.start_time}|${fromVisit.cinema_address}|${toVisit.cinema_address}`;
+    }
+
+    function renderTransfer(prevVisit, nextVisit, transferLookup) {
+      if (!prevVisit || !nextVisit || prevVisit.date !== nextVisit.date) return '';
+      const gap = parseTimeToMinutes(nextVisit.start_time) - parseTimeToMinutes(prevVisit.end_time);
+      const gapText = formatGapMinutes(gap);
+      const route = transferLookup[transferKey(prevVisit, nextVisit)];
+      if (prevVisit.cinema_address === nextVisit.cinema_address) {
+        return `<div class="itinerary-transfer ready">同影院，间隔 ${escapeHtml(gapText)}</div>`;
+      }
+      const cls = gap < 20 ? 'tight' : 'ready';
+      const routeText = route ? `；${escapeHtml(route)}` : (amapConfigured ? '；尚未规划路线' : '');
+      return `<div class="itinerary-transfer ${cls}">换场间隔 ${escapeHtml(gapText)}${routeText}</div>`;
+    }
+
+    function renderItineraryPanel() {
+      const list = document.getElementById('itinerary-list');
+      if (!list) return;
+
+      const items = sortedSelectedMovies();
+      if (items.length === 0) {
+        list.innerHTML = '<div class="itinerary-empty">点击时间线里的场次后，这里会按天生成行程单。</div>';
+        return;
+      }
+
+      const conflictGroups = findConflictGroups(items);
+      const transferLookup = buildTransferLookup();
+      const byDate = groupMoviesByDate(items);
+      let html = `<div class="itinerary-summary">
+        <div class="itinerary-summary-title">观影计划</div>
+        <div class="itinerary-summary-meta">
+          已选 ${items.length} 场${conflictGroups.length ? `，含 ${conflictGroups.length} 组备选，当前行程采用 ${getEffectiveSelectedMovies().length} 场` : ''}
+          ${routeNeedsRefresh ? '，行程已调整，请重新路线规划' : (lastRouteData ? '，已合并路线信息' : (amapConfigured ? '，点击路线规划可补充换场信息' : '，未配置地图 Key，仅生成行程'))}
+        </div>
+      </div>`;
+      Object.keys(byDate).sort().forEach((date) => {
+        const plan = buildDayPlan(byDate[date]);
+        html += `<section class="itinerary-day">
+          <div class="itinerary-day-title">
+            <span>${escapeHtml(date)}</span>
+            <span class="itinerary-day-count">${byDate[date].length} 场</span>
+          </div>`;
+        plan.forEach((entry, idx) => {
+          const prevVisit = [...plan.slice(0, idx)].reverse().find(x => x.type === 'visit');
+          html += renderTransfer(prevVisit, entry, transferLookup);
+          html += `<article class="itinerary-item ${entry.items.length > 1 ? 'same-cinema' : ''} ${entry.alternatives ? 'conflict' : ''}">
+              <div class="itinerary-time">${escapeHtml(entry.start_time)}<br>${escapeHtml(formatTimeWithDay(entry.end_time))}</div>
+              <div>
+                <div class="itinerary-title">${escapeHtml(entry.cinema_name)}
+                  ${entry.items.length > 1 ? '<span class="itinerary-badge">同影院连续</span>' : ''}
+                  ${entry.alternatives ? '<span class="itinerary-badge warn">备选组</span>' : ''}
+                </div>
+                <div class="itinerary-meta">${escapeHtml(entry.cinema_address || '')}</div>
+                ${renderScreeningRows(entry.items)}
+                ${renderAlternativeControls(entry)}
+              </div>
+            </article>`;
+        });
+        html += '</section>';
+      });
+      list.innerHTML = html;
+      list.querySelectorAll('.alt-choice-btn').forEach((btn) => {
+        btn.addEventListener('click', () => chooseAlternative(btn.dataset.altGroup, btn.dataset.altId));
+      });
+    }
+
+    function buildTransferLookup() {
+      const lookup = {};
+      if (!lastRouteData || !Array.isArray(lastRouteData.points) || !Array.isArray(lastRouteData.distances)) {
+        return lookup;
+      }
+      lastRouteData.distances.forEach((seg) => {
+        if (seg.cross_day) return;
+        const from = lastRouteData.points[seg.from_index];
+        const to = lastRouteData.points[seg.to_index];
+        if (!from || !to) return;
+        const key = `${from.movie_end}|${to.movie_start}|${from.address}|${to.address}`;
+        const parts = [];
+        if (seg.distance_km != null) parts.push(`${seg.distance_km.toFixed(1)} km`);
+        if (seg.bike_duration_min != null) parts.push(`骑行 ${seg.bike_duration_min} 分钟`);
+        if (seg.transit_duration_min != null) parts.push(`公交 ${seg.transit_duration_min} 分钟`);
+        lookup[key] = parts.join(' / ');
+      });
+      return lookup;
+    }
+
+    function buildItineraryText() {
+      const items = sortedSelectedMovies();
+      const byDate = groupMoviesByDate(items);
+      const transferLookup = buildTransferLookup();
+      const conflictGroups = findConflictGroups(items);
+      const lines = ['电影节观影行程单', ''];
+      if (conflictGroups.length) {
+        lines.push('注意：以下行程包含时间重叠的备选影片，行程中只采用每组当前选中的一部，其余作为备选保留。');
+        conflictGroups.forEach((group, idx) => {
+          const active = getAlternativeActive(group.items);
+          lines.push(`  备选组 ${idx + 1}：当前采用 ${active.start_time} ${active.title}；全部备选：${group.items.map(m => `${m.start_time} ${m.title}`).join(' / ')}`);
+        });
+        lines.push('');
+      }
+
+      Object.keys(byDate).sort().forEach((date) => {
+        lines.push(date);
+        const plan = buildDayPlan(byDate[date]);
+        plan.forEach((entry, idx) => {
+          const prevVisit = [...plan.slice(0, idx)].reverse().find(x => x.type === 'visit');
+          if (entry.type === 'visit') {
+            if (prevVisit && prevVisit.date === entry.date) {
+              const gap = parseTimeToMinutes(entry.start_time) - parseTimeToMinutes(prevVisit.end_time);
+              const route = transferLookup[transferKey(prevVisit, entry)];
+              const transfer = route ? `；换乘 ${route}` : (prevVisit.cinema_address === entry.cinema_address ? '；同影院' : '');
+              lines.push(`  间隔 ${formatGapMinutes(gap)}${transfer}`);
+            }
+            lines.push(`  ${entry.start_time}-${formatTimeWithDay(entry.end_time)}  ${entry.cinema_name}`);
+            if (entry.cinema_address) lines.push(`  ${entry.cinema_address}`);
+            entry.items.forEach((m) => lines.push(`    ${m.start_time}-${formatTimeWithDay(m.end_time)}  ${m.title}`));
+            if (entry.alternatives) {
+              lines.push('    本时段其它备选：');
+              entry.alternatives.filter(m => m.id !== entry.items[0].id).forEach((m) => {
+                lines.push(`      ${m.start_time}-${formatTimeWithDay(m.end_time)}  ${m.title} @ ${m.cinema_name}`);
+              });
+            }
+          } else {
+            entry.items.forEach((m) => {
+              lines.push(`    ${m.start_time}-${formatTimeWithDay(m.end_time)}  ${m.title}`);
+              lines.push(`    ${m.cinema_name}`);
+            });
+          }
+        });
+        lines.push('');
+      });
+      return lines.join('\n');
+    }
+
+    function downloadFile(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportItinerary() {
+      if (selectedMovies.length === 0) return;
+      const firstDate = sortedSelectedMovies()[0]?.date || 'festival';
+      downloadFile(`film-itinerary-${firstDate}.txt`, buildItineraryText(), 'text/plain;charset=utf-8');
+    }
+
     // ======== Route Planning ========
     function clearMapAndInfo() {
       document.querySelectorAll('.movie-item.selected').forEach(el => el.classList.remove('selected'));
-      const mb = document.getElementById('show-map-btn');
-      mb.disabled = true; mb.innerText = '路线规划';
-      document.getElementById('distances-list').innerHTML = '';
+      alternativeChoices = {};
+      lastRouteData = null;
+      routeNeedsRefresh = false;
+      updateSelectionActions();
       if (window.map && typeof window.map.clearMap === 'function') window.map.clearMap();
     }
 
     function hasTimeConflict(selected) {
-      const byDate = {};
-      selected.forEach(m => {
-        if (!byDate[m.date]) byDate[m.date] = [];
-        byDate[m.date].push(m);
-      });
-      for (const [date, arr] of Object.entries(byDate)) {
-        const tuples = arr.map(m => ({
-          start: parseInt(m.start_time.split(':')[0]) * 60 + parseInt(m.start_time.split(':')[1]),
-          end: parseInt(m.end_time.split(':')[0]) * 60 + parseInt(m.end_time.split(':')[1]),
-          address: m.cinema_address, title: m.title
-        }));
-        tuples.sort((a, b) => a.start - b.start);
-        for (let i = 0; i < tuples.length - 1; i++) {
-          const cur = tuples[i], nxt = tuples[i + 1];
-          if (cur.start < nxt.end && nxt.start < cur.end) {
-            if (cur.address !== nxt.address) {
-              return { conflict: true, date, firstTitle: cur.title, secondTitle: nxt.title };
-            }
-          }
-        }
-      }
-      return { conflict: false };
+      const groups = findConflictGroups(selected);
+      if (groups.length === 0) return { conflict: false };
+      return { conflict: true, groups };
     }
 
     function onShowMap() {
-      if (selectedMovies.length < 2) { alert('请至少选中两个场次'); return; }
-      const ci = hasTimeConflict(selectedMovies);
-      if (ci.conflict) {
-        alert(`检测到 "${ci.date}" 同一天中，"${ci.firstTitle}" 与 "${ci.secondTitle}" 时间重叠，且不在同一影院，请调整选择。`);
-        return;
-      }
-      selectedMovies.sort((a, b) => {
-        if (a.date !== b.date) return a.date.localeCompare(b.date);
-        return a.start_time.localeCompare(b.start_time);
-      });
+      const routeMovies = getEffectiveSelectedMovies();
+      if (routeMovies.length < 2) { alert('请至少选中两个有效场次'); return; }
 
       fetch('/route_info', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ selected_movies: selectedMovies })
+        body: JSON.stringify({ selected_movies: routeMovies })
       }).then(r => r.json()).then(json => {
         if (!json.points || !json.distances) throw new Error('后端返回格式不正确');
+        lastRouteData = json;
+        routeNeedsRefresh = false;
+        renderItineraryPanel();
         drawMapWithRoutes(json);
       }).catch(err => { console.error(err); alert('获取路线信息失败'); });
     }
 
     function drawMapWithRoutes(data) {
       const pts = data.points, dists = data.distances;
-      const distListDiv = document.getElementById('distances-list');
-      distListDiv.innerHTML = '';
       if (!window.map || typeof window.map.clearMap !== 'function') { alert('地图未初始化'); return; }
       window.map.clearMap();
       if (pts.length > 0 && pts[0].lng !== null && pts[0].lat !== null) {
@@ -1572,7 +2175,7 @@
         });
       });
 
-      if (!window.ridingService) { alert('骑行插件未就绪'); return; }
+      if (!window.ridingService) return;
 
       // Interleaved: point → transfer → point → transfer → ...
       let html = '<div style="font-weight:bold;font-size:0.9rem;margin-bottom:10px;color:#333;">📍 路线规划</div>';
@@ -1583,15 +2186,19 @@
       <div style="min-width:0;">
         <div style="font-weight:bold;font-size:0.82rem;">${p.cinema_name}</div>
         <div style="font-size:0.78rem;color:#666;">🎬 ${p.movie_title}</div>
-        <div style="font-size:0.75rem;color:#999;">${p.movie_start} — ${p.movie_end}</div>
+        <div style="font-size:0.75rem;color:#999;">${p.date || ''} ${p.movie_start} — ${p.movie_end}</div>
       </div>
     </div>`;
 
         // Transfer guide (to next point)
         if (idx < pts.length - 1) {
           const p1 = p, p2 = pts[idx + 1];
+          const seg = dists.find(d => d.from_index === idx);
+          if (seg && seg.cross_day) {
+            html += `<div style="margin:8px 0 10px 14px;padding:6px 10px;border-radius:6px;background:#eef2ff;color:#475569;font-size:0.78rem;">下一天：${p2.date || ''}</div>`;
+            return;
+          }
           if (p1.lng != null && p2.lng != null) {
-            const seg = dists.find(d => d.from_index === idx);
             if (seg) {
               let gapMin = 0;
               try {
@@ -1624,7 +2231,6 @@
         }
       });
 
-      distListDiv.innerHTML = html;
     }
 
     // ======== Event Bindings ========
@@ -1633,6 +2239,7 @@
       document.getElementById('filter-btn').addEventListener('click', backToBrowse);
       document.getElementById('cart-badge').addEventListener('click', toggleCartDropdown);
       document.getElementById('show-map-btn').addEventListener('click', onShowMap);
+      document.getElementById('export-itinerary-btn').addEventListener('click', exportItinerary);
 
       // Browse select-all / deselect-all for filtered movies
       document.getElementById('browse-select-all').addEventListener('click', () => {

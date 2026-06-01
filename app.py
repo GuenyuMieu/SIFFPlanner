@@ -302,11 +302,14 @@ def route_info():
     # --- 修改后：连续相同影院的场次合并，并把 movie_titles 存成列表 ---
     cinemas = []
     previous_addr = None
+    previous_date = None
     for m in selected:
         addr = m["cinema_address"]
-        if addr != previous_addr:
+        date = m["date"]
+        if addr != previous_addr or date != previous_date:
             # 第一次遇到这个影院，创建一个新的条目，把当前 title 放入 movie_titles 列表
             cinemas.append({
+                "date": date,
                 "cinema_name": m["cinema_name"],
                 "cinema_address": m["cinema_address"],
                 "movie_titles": [m["title"]],  # 用列表保存所有连续场次的标题
@@ -318,6 +321,7 @@ def route_info():
             cinemas[-1]["movie_titles"].append(m["title"])
             cinemas[-1]["movie_end"] = m["end_time"]
         previous_addr = addr
+        previous_date = date
 
     # 获取坐标，并组装 points 列表
     points = []
@@ -327,6 +331,7 @@ def route_info():
         if lng is None and lat is None:
             lng, lat = geocode_address(addr)
         points.append({
+            "date": c["date"],
             "cinema_name": c["cinema_name"],
             "address": addr,
             # 将 movie_titles 列表拼成一个字符串，前端显示时就能看到“片名1 / 片名2”
@@ -342,13 +347,24 @@ def route_info():
     for i in range(len(points) - 1):
         p1 = points[i]
         p2 = points[i + 1]
+        if p1.get("date") != p2.get("date"):
+            distances.append({
+                "from_index": i,
+                "to_index":   i + 1,
+                "distance_km": None,
+                "bike_duration_min": None,
+                "transit_duration_min": None,
+                "cross_day": True
+            })
+            continue
         if p1["lng"] is None or p2["lng"] is None:
             distances.append({
                 "from_index": i,
                 "to_index":   i + 1,
                 "distance_km": None,
                 "bike_duration_min": None,
-                "transit_duration_min": None
+                "transit_duration_min": None,
+                "cross_day": False
             })
             continue
 
@@ -358,7 +374,8 @@ def route_info():
                 "to_index":   i + 1,
                 "distance_km": 0.0,
                 "bike_duration_min": 0,
-                "transit_duration_min": 0
+                "transit_duration_min": 0,
+                "cross_day": False
             })
             continue
 
@@ -425,7 +442,8 @@ def route_info():
             "to_index":   i + 1,
             "distance_km": dist_km,
             "bike_duration_min": bike_min,
-            "transit_duration_min": transit_min
+            "transit_duration_min": transit_min,
+            "cross_day": False
         })
 
     return jsonify({
