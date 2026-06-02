@@ -714,6 +714,269 @@
       border-color: #93c5fd;
     }
 
+    #candidate-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.46);
+      z-index: 3600;
+    }
+
+    #candidate-modal-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(980px, 94vw);
+      height: min(760px, 88vh);
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+      z-index: 3601;
+      overflow: hidden;
+      color: #172033;
+    }
+
+    .candidate-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f8fafc;
+    }
+
+    .candidate-modal-title {
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    #candidate-modal-close {
+      border: 0;
+      background: transparent;
+      color: #64748b;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    .candidate-modal-body {
+      height: calc(100% - 57px);
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 0;
+    }
+
+    .candidate-sidebar {
+      padding: 14px;
+      border-right: 1px solid #e5e7eb;
+      background: #fbfdff;
+      overflow-y: auto;
+    }
+
+    .candidate-content {
+      padding: 14px 16px;
+      overflow-y: auto;
+      min-width: 0;
+    }
+
+    .candidate-label {
+      display: block;
+      margin: 10px 0 6px;
+      color: #475569;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    #candidate-date-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .candidate-date-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 8px;
+      border: 1px solid #dbe3ee;
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+
+    .candidate-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .candidate-input-row input {
+      width: 72px;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+    }
+
+    .candidate-primary-btn,
+    .candidate-secondary-btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .candidate-primary-btn {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .candidate-secondary-btn {
+      background: #e8edf5;
+      color: #334155;
+    }
+
+    .candidate-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0 12px;
+    }
+
+    .candidate-tab {
+      border: 1px solid #dbe3ee;
+      background: #fff;
+      border-radius: 999px;
+      padding: 5px 9px;
+      cursor: pointer;
+      color: #475569;
+      font-size: 0.78rem;
+    }
+
+    .candidate-tab.active {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 800;
+    }
+
+    .candidate-plan-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 9px;
+      background: #fff;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .candidate-plan-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 12px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e5e7eb;
+      font-weight: 800;
+    }
+
+    .candidate-screening {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 10px;
+      padding: 8px 12px;
+      border-top: 1px solid #eef2f7;
+    }
+
+    .candidate-screening:first-of-type {
+      border-top: 0;
+    }
+
+    .candidate-time {
+      color: #2563eb;
+      font-weight: 800;
+    }
+
+    .candidate-transfer {
+      margin: 0 12px 4px 94px;
+      padding: 5px 8px;
+      border-radius: 8px;
+      background: #ecfdf5;
+      color: #047857;
+      font-size: 0.76rem;
+    }
+
+    .candidate-status {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      color: #64748b;
+      line-height: 1.5;
+      font-size: 0.82rem;
+    }
+
+    #candidate-must-list {
+      max-height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 6px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .candidate-must-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      color: #334155;
+    }
+
+    .candidate-coverage {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .candidate-coverage-box {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+      padding: 9px 10px;
+      min-width: 0;
+    }
+
+    .candidate-coverage-box.warn {
+      border-color: #fecaca;
+      background: #fff7f7;
+    }
+
+    .candidate-coverage-title {
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .candidate-movie-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #475569;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .candidate-movie-list li {
+      margin-bottom: 3px;
+    }
+
     #map-container {
       flex: 1;
       position: relative;
@@ -1007,6 +1270,8 @@
         </div>
         <div id="movie-grid-container">
           <div id="browse-actions" style="display:flex;gap:8px;padding:8px 16px;border-bottom:1px solid #eee;">
+            <button id="open-candidate-btn"
+              style="flex:1;padding:5px 0;font-size:0.85rem;border:1px solid #0f766e;border-radius:4px;cursor:pointer;background:#ecfdf5;color:#0f766e;">候选排片</button>
             <button id="browse-select-all"
               style="flex:1;padding:5px 0;font-size:0.85rem;border:1px solid #4aa0eb;border-radius:4px;cursor:pointer;background:#e8f4ff;color:#4aa0eb;">全选筛选结果</button>
             <button id="browse-deselect-all"
@@ -1050,6 +1315,40 @@
       <span id="other-modal-close">&times;</span>
     </div>
     <div id="other-modal-content"></div>
+  </div>
+
+  <!-- ======== Candidate Schedule Modal ======== -->
+  <div id="candidate-modal-overlay"></div>
+  <div id="candidate-modal-dialog">
+    <div class="candidate-modal-header">
+      <div>
+        <div class="candidate-modal-title">候选排片</div>
+        <div style="color:#64748b;font-size:0.78rem;margin-top:2px;">基于当前片单和指定日期，生成公交换场可行的多套方案</div>
+      </div>
+      <button id="candidate-modal-close" type="button">&times;</button>
+    </div>
+    <div class="candidate-modal-body">
+      <aside class="candidate-sidebar">
+        <label class="candidate-label">排片日期</label>
+        <div id="candidate-date-list"></div>
+        <label class="candidate-label">换场缓冲</label>
+        <div class="candidate-input-row">
+          <input id="candidate-buffer-input" type="number" min="0" step="5" value="10">
+          <span style="color:#64748b;font-size:0.82rem;">分钟，需大于公交时间</span>
+        </div>
+        <label class="candidate-label">必看电影</label>
+        <div id="candidate-must-list"></div>
+        <div class="candidate-input-row" style="margin-top:12px;">
+          <button id="candidate-generate-btn" type="button" class="candidate-primary-btn">生成候选</button>
+          <button id="candidate-apply-btn" type="button" class="candidate-secondary-btn" disabled>使用此方案</button>
+        </div>
+        <div id="candidate-status" class="candidate-status">选择日期后生成候选方案。</div>
+      </aside>
+      <main class="candidate-content">
+        <div id="candidate-tabs" class="candidate-tabs"></div>
+        <div id="candidate-result"></div>
+      </main>
+    </div>
   </div>
 
   <!-- ======== Settings Modal ======== -->
@@ -1127,13 +1426,15 @@
     let interestList = new Set();          // Set of movie keys
     let filteredTimelineData = {};          // from /api/timeline_for_movies
     let filteredDates = [];                 // sorted dates
-    let currentMode = 'timeline';          // start in timeline mode
+    let currentMode = 'browse';            // start in browse mode
     let currentDate = null;                // active date tab in timeline mode
     let selectedMovies = [];               // selected screenings for route planning
     let lastRouteData = null;              // latest route result for itinerary export
     let alternativeChoices = {};           // conflict group key -> selected screening id
     let selectionSequence = 0;             // preserves first-picked order for alternatives
     let routeNeedsRefresh = false;         // route data is stale after itinerary switches
+    let scheduleCandidates = [];           // generated schedule candidates
+    let activeCandidateIndex = 0;           // visible candidate in modal
 
     // Filter state
     let selectedDates = new Set();
@@ -1166,11 +1467,16 @@
       initExcelSelector();
       updateSelectionActions();
 
-      // Default: all movies selected, start in timeline mode
-      interestList = new Set(uniqueMoviesRaw.map(m => m.key));
+      // Default: no movies selected, start in browse mode
+      interestList = new Set();
       updateCartBadge();
-      console.log("calling showTimelineMode...");
-      showTimelineMode();
+      document.getElementById('browse-view').style.display = 'flex';
+      document.getElementById('timeline-view').style.display = 'none';
+      document.getElementById('search-input').style.display = '';
+      document.getElementById('show-timeline-btn').style.display = '';
+      document.getElementById('filter-btn').style.display = 'none';
+      document.getElementById('date-select').style.display = 'none';
+      renderMovieGrid();
       console.log("initPage done");
       } catch(e) {
         console.error("initPage error:", e.message, e.stack);
@@ -1516,9 +1822,210 @@
       document.getElementById('cart-dropdown').style.display = 'none';
     });
 
+    // ======== Candidate Schedule Modal ========
+    function closeCandidateModal() {
+      document.getElementById('candidate-modal-overlay').style.display = 'none';
+      document.getElementById('candidate-modal-dialog').style.display = 'none';
+    }
+
+    function openCandidateModal() {
+      if (interestList.size === 0) {
+        alert('请先选择影片');
+        return;
+      }
+      renderCandidateDateList();
+      renderCandidateMustList();
+      document.getElementById('candidate-modal-overlay').style.display = 'block';
+      document.getElementById('candidate-modal-dialog').style.display = 'block';
+    }
+
+    function renderCandidateDateList() {
+      const container = document.getElementById('candidate-date-list');
+      const allDates = Array.from(new Set(uniqueMoviesRaw.flatMap(m => m.dates || []))).sort();
+      container.innerHTML = allDates.map((date) => {
+        const checked = selectedDates.has(date) ? 'checked' : '';
+        return `<label class="candidate-date-chip"><input type="checkbox" value="${escapeHtml(date)}" ${checked}>${escapeHtml(date)}</label>`;
+      }).join('');
+    }
+
+    function getCandidateDates() {
+      return Array.from(document.querySelectorAll('#candidate-date-list input:checked')).map(input => input.value);
+    }
+
+    function renderCandidateMustList() {
+      const container = document.getElementById('candidate-must-list');
+      const movies = uniqueMoviesRaw.filter(m => interestList.has(m.key)).sort((a, b) => a.title.localeCompare(b.title));
+      if (movies.length === 0) {
+        container.innerHTML = '<div style="color:#94a3b8;font-size:0.78rem;">当前片单为空</div>';
+        return;
+      }
+      container.innerHTML = movies.map((m) => `<label class="candidate-must-item">
+        <input type="checkbox" value="${escapeHtml(m.key)}">
+        <span>${escapeHtml(m.title)}${m.director ? ` · ${escapeHtml(m.director)}` : ''}</span>
+      </label>`).join('');
+    }
+
+    function getCandidateMustKeys() {
+      return Array.from(document.querySelectorAll('#candidate-must-list input:checked')).map(input => input.value);
+    }
+
+    function setCandidateStatus(text) {
+      document.getElementById('candidate-status').innerText = text;
+    }
+
+    function generateScheduleCandidates() {
+      const dates = getCandidateDates();
+      if (dates.length === 0) {
+        alert('请至少选择一个日期');
+        return;
+      }
+      const bufferMin = parseInt(document.getElementById('candidate-buffer-input').value, 10);
+      const payload = {
+        movie_keys: Array.from(interestList),
+        must_keys: getCandidateMustKeys(),
+        dates,
+        buffer_min: Number.isFinite(bufferMin) && bufferMin >= 0 ? bufferMin : 10,
+        max_candidates: 8
+      };
+      scheduleCandidates = [];
+      activeCandidateIndex = 0;
+      document.getElementById('candidate-apply-btn').disabled = true;
+      document.getElementById('candidate-tabs').innerHTML = '';
+      document.getElementById('candidate-result').innerHTML = '';
+      setCandidateStatus('正在计算候选排片和公交换场时间...');
+
+      fetch('/api/schedule_candidates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(async (r) => {
+        const json = await r.json();
+        if (!r.ok || json.status === 'error') throw new Error(json.message || '生成失败');
+        return json;
+      }).then((json) => {
+        scheduleCandidates = json.candidates || [];
+        activeCandidateIndex = 0;
+        if (scheduleCandidates.length === 0) {
+          document.getElementById('candidate-result').innerHTML = '<div class="itinerary-empty">没有找到满足公交换场时间的候选方案。可以减少影片、增加日期，或降低缓冲时间。</div>';
+          setCandidateStatus(json.message || '没有可行候选。');
+          return;
+        }
+        document.getElementById('candidate-apply-btn').disabled = false;
+        const mustUnavailable = json.must_unavailable || [];
+        const mustHint = mustUnavailable.length ? `；${mustUnavailable.length} 部必看在所选日期没有场次` : '';
+        setCandidateStatus(`生成 ${scheduleCandidates.length} 套候选。共 ${json.total_movies || 0} 部影片有场次${mustHint}，已优先满足必看并按可行换场排序。`);
+        renderCandidateResult();
+      }).catch((err) => {
+        console.error(err);
+        setCandidateStatus(err.message || '生成候选失败');
+        document.getElementById('candidate-result').innerHTML = `<div class="itinerary-empty">${escapeHtml(err.message || '生成候选失败')}</div>`;
+      });
+    }
+
+    function renderCandidateResult() {
+      const tabs = document.getElementById('candidate-tabs');
+      const result = document.getElementById('candidate-result');
+      tabs.innerHTML = scheduleCandidates.map((candidate, idx) =>
+        `<button type="button" class="candidate-tab ${idx === activeCandidateIndex ? 'active' : ''}" data-candidate-index="${idx}">
+          方案 ${idx + 1} · ${candidate.scheduled_count} 场
+        </button>`
+      ).join('');
+      tabs.querySelectorAll('.candidate-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeCandidateIndex = Number(btn.dataset.candidateIndex);
+          renderCandidateResult();
+        });
+      });
+
+      const candidate = scheduleCandidates[activeCandidateIndex];
+      if (!candidate) {
+        result.innerHTML = '';
+        return;
+      }
+      const transferMap = {};
+      (candidate.transfers || []).forEach(t => { transferMap[`${t.from_id}|${t.to_id}`] = t; });
+      const byDate = groupMoviesByDate(candidate.items || []);
+      const renderMovieList = (movies, emptyText) => {
+        if (!movies || movies.length === 0) return `<div style="color:#94a3b8;font-size:0.78rem;">${emptyText}</div>`;
+        return `<ul class="candidate-movie-list">${movies.map(m => `<li>${escapeHtml(m.title)}${m.director ? ` · ${escapeHtml(m.director)}` : ''}</li>`).join('')}</ul>`;
+      };
+      let html = `<div class="itinerary-summary">
+        <div class="itinerary-summary-title">方案 ${activeCandidateIndex + 1}</div>
+        <div class="itinerary-summary-meta">
+          安排 ${candidate.scheduled_count} 场，未排 ${candidate.unscheduled_count} 部；
+          必看完成 ${candidate.must_scheduled_count || 0}/${(candidate.must_scheduled_count || 0) + (candidate.must_unscheduled_count || 0)}；
+          每段换场均满足公交时间 + 缓冲。
+        </div>
+      </div>
+      <div class="candidate-coverage">
+        <div class="candidate-coverage-box ${(candidate.must_unscheduled_count || 0) ? 'warn' : ''}">
+          <div class="candidate-coverage-title">必看状态</div>
+          <div style="color:#16a34a;font-size:0.78rem;margin-bottom:6px;">已安排</div>
+          ${renderMovieList(candidate.must_scheduled_movies, '没有选择必看，或必看未排入此方案')}
+          <div style="color:#dc2626;font-size:0.78rem;margin:8px 0 6px;">未安排</div>
+          ${renderMovieList(candidate.must_unscheduled_movies, '必看全部满足')}
+        </div>
+        <div class="candidate-coverage-box">
+          <div class="candidate-coverage-title">影片覆盖</div>
+          <div style="color:#16a34a;font-size:0.78rem;margin-bottom:6px;">已安排</div>
+          ${renderMovieList(candidate.scheduled_movies, '无')}
+          <div style="color:#64748b;font-size:0.78rem;margin:8px 0 6px;">未安排</div>
+          ${renderMovieList(candidate.unscheduled_movies, '当前片单全部排入')}
+        </div>
+      </div>`;
+      Object.keys(byDate).sort().forEach(date => {
+        const items = sortScreenings(byDate[date]);
+        html += `<section class="candidate-plan-card">
+          <div class="candidate-plan-head"><span>${escapeHtml(date)}</span><span>${items.length} 场</span></div>`;
+        items.forEach((item, idx) => {
+          if (idx > 0) {
+            const prev = items[idx - 1];
+            const transfer = transferMap[`${prev.id}|${item.id}`];
+            if (transfer) {
+              html += `<div class="candidate-transfer">换场间隔 ${transfer.gap_min} 分钟，公交 ${transfer.transit_duration_min} 分钟，余量 ${transfer.buffer_min} 分钟</div>`;
+            }
+          }
+          html += `<div class="candidate-screening">
+            <div class="candidate-time">${escapeHtml(item.start_time)}<br>${escapeHtml(formatTimeWithDay(item.end_time))}</div>
+            <div>
+              <div class="itinerary-title">${escapeHtml(item.title)}</div>
+              <div class="itinerary-meta">${escapeHtml(item.cinema_name)} · ${escapeHtml(item.cinema_address || '')}</div>
+            </div>
+          </div>`;
+        });
+        html += '</section>';
+      });
+      result.innerHTML = html;
+    }
+
+    function applyActiveCandidate() {
+      const candidate = scheduleCandidates[activeCandidateIndex];
+      if (!candidate || !candidate.items) return;
+      selectedMovies = sortScreenings(candidate.items).map((item) => ({
+        id: item.id,
+        title: item.title,
+        date: item.date,
+        start_time: item.start_time,
+        end_time: item.end_time,
+        cinema_name: item.cinema_name,
+        cinema_address: item.cinema_address,
+        selected_order: ++selectionSequence
+      }));
+      alternativeChoices = {};
+      invalidateRoute(true);
+      if (currentMode === 'timeline' && currentDate) {
+        renderTimelineForDate(currentDate);
+      }
+      updateSelectionActions();
+      closeCandidateModal();
+    }
+
     // ======== Mode Switching ========
     function showTimelineMode() {
-      if (interestList.size === 0) return;
+      if (interestList.size === 0) {
+        alert('请先选择至少一部电影');
+        return;
+      }
 
       fetch('/api/timeline_for_movies', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -2240,6 +2747,11 @@
       document.getElementById('cart-badge').addEventListener('click', toggleCartDropdown);
       document.getElementById('show-map-btn').addEventListener('click', onShowMap);
       document.getElementById('export-itinerary-btn').addEventListener('click', exportItinerary);
+      document.getElementById('open-candidate-btn').addEventListener('click', openCandidateModal);
+      document.getElementById('candidate-modal-close').addEventListener('click', closeCandidateModal);
+      document.getElementById('candidate-modal-overlay').addEventListener('click', closeCandidateModal);
+      document.getElementById('candidate-generate-btn').addEventListener('click', generateScheduleCandidates);
+      document.getElementById('candidate-apply-btn').addEventListener('click', applyActiveCandidate);
 
       // Browse select-all / deselect-all for filtered movies
       document.getElementById('browse-select-all').addEventListener('click', () => {

@@ -155,6 +155,55 @@ def preload_all_geocodes():
     for addr in all_addresses:
         geocode_address(addr)
 
+
+def get_transit_duration_min(address_from: str, address_to: str):
+    """Return public transit duration in minutes between two cinema addresses."""
+    if address_from == address_to:
+        return 0
+    cache_key = (address_from, address_to)
+    if cache_key in transit_duration_cache:
+        return transit_duration_cache[cache_key]
+    if not AMAP_KEY:
+        return None
+
+    lng1, lat1 = geocode_cache.get(address_from, (None, None))
+    if lng1 is None or lat1 is None:
+        lng1, lat1 = geocode_address(address_from)
+    lng2, lat2 = geocode_cache.get(address_to, (None, None))
+    if lng2 is None or lat2 is None:
+        lng2, lat2 = geocode_address(address_to)
+    if lng1 is None or lat1 is None or lng2 is None or lat2 is None:
+        transit_duration_cache[cache_key] = None
+        return None
+
+    params_transit = {
+        "origin": f"{lng1:.6f},{lat1:.6f}",
+        "destination": f"{lng2:.6f},{lat2:.6f}",
+        "city": "上海",
+        "key": AMAP_KEY,
+        "extensions": "base"
+    }
+    try:
+        r_transit = requests.get(
+            "https://restapi.amap.com/v3/direction/transit/integrated",
+            params=params_transit,
+            timeout=5
+        )
+        j_transit = r_transit.json()
+    except Exception as e:
+        print(f"[ERROR] 公交换乘接口异常：{e}")
+        transit_duration_cache[cache_key] = None
+        return None
+
+    transit_min = None
+    if j_transit.get("status") == "1" and j_transit.get("route", {}).get("transits"):
+        try:
+            transit_min = int(round(int(j_transit["route"]["transits"][0].get("duration", 0)) / 60))
+        except:
+            transit_min = None
+    transit_duration_cache[cache_key] = transit_min
+    return transit_min
+
 # ======== 数据加载和预处理函数 ========
 def load_and_process_data():
     global raw_movies, cinema_address_map, movies_by_date, timeline_data, all_addresses, unique_movies
@@ -236,6 +285,7 @@ timeline_data = {}
 all_addresses = set()
 unique_movies = []
 geocode_cache = {}
+transit_duration_cache = {}
 _last_geocode_time = 0.0
 _geocode_lock = threading.Lock()
 
@@ -758,6 +808,184 @@ def timeline_for_movies():
 
     dates = sorted(filtered.keys())
     return jsonify({"dates": dates, "timeline_data": filtered})
+
+
+@app.route("/api/schedule_candidates", methods=["POST"])
+def schedule_candidates():
+    """
+    Build alternative festival schedules for selected movie keys and dates.
+    Each unique movie can appear once. Adjacent screenings on the same day must
+    leave enough time for public transit plus a user supplied buffer.
+    """
+    data = request.get_json() or {}
+    movie_keys = set(data.get("movie_keys", []))
+    must_keys = set(data.get("must_keys", [])) & movie_keys
+    date_set = set(data.get("dates", []))
+    try:
+        buffer_min = max(0, int(data.get("buffer_min", 10)))
+    except:
+        buffer_min = 10
+    try:
+        max_candidates = min(12, max(1, int(data.get("max_candidates", 8))))
+    except:
+        max_candidates = 8
+
+    if not movie_keys:
+        return jsonify({"status": "error", "message": "请先选择影片"}), 400
+    if not date_set:
+        return jsonify({"status": "error", "message": "请至少选择一个日期"}), 400
+    if not AMAP_KEY:
+        return jsonify({"status": "error", "message": "生成候选排片需要配置高德 Web 服务 Key，用于校验公交换场时间"}), 400
+
+    screenings = []
+    available_movie_keys = set()
+    movie_meta = {}
+    for date in sorted(date_set):
+        for m in movies_by_date.get(date, []):
+            movie_key = f"{m['title']}||{m.get('director', '')}"
+            if movie_key not in movie_keys:
+                continue
+            available_movie_keys.add(movie_key)
+            movie_meta[movie_key] = {
+                "key": movie_key,
+                "title": m["title"],
+                "director": m.get("director", ""),
+                "unit": m.get("unit", "")
+            }
+            screenings.append({
+                "id": m["id"],
+                "movie_key": movie_key,
+                "title": m["title"],
+                "date": date,
+                "start_time": m["start_time"],
+                "end_time": m["end_time"],
+                "start_min": m["start_min"],
+                "end_min": m["end_min"],
+                "duration": m["duration"],
+                "cinema_name": m["cinema_name"],
+                "cinema_address": m["cinema_address"],
+                "director": m.get("director", ""),
+                "unit": m.get("unit", "")
+            })
+
+    screenings.sort(key=lambda x: (x["date"], x["start_min"], x["end_min"], x["title"]))
+    if not screenings:
+        return jsonify({
+            "status": "ok",
+            "candidates": [],
+            "message": "这些日期里没有当前片单的可排场次",
+            "total_movies": 0
+        })
+
+    available_must_keys = must_keys & available_movie_keys
+
+    def can_append(state_items, screening):
+        if not state_items:
+            return True, None
+        prev = state_items[-1]
+        if prev["date"] != screening["date"]:
+            return True, None
+        if screening["start_min"] < prev["end_min"]:
+            return False, None
+        transit_min = get_transit_duration_min(prev["cinema_address"], screening["cinema_address"])
+        if transit_min is None:
+            return False, None
+        gap = screening["start_min"] - prev["end_min"]
+        return gap >= transit_min + buffer_min, {
+            "from_id": prev["id"],
+            "to_id": screening["id"],
+            "gap_min": gap,
+            "transit_duration_min": transit_min,
+            "buffer_min": gap - transit_min
+        }
+
+    beam = [{
+        "items": [],
+        "movie_keys": set(),
+        "transfers": [],
+        "idle": 0
+    }]
+    beam_size = 90
+    for screening in screenings:
+        next_beam = list(beam)
+        for state in beam:
+            if screening["movie_key"] in state["movie_keys"]:
+                continue
+            ok, transfer = can_append(state["items"], screening)
+            if not ok:
+                continue
+            new_items = state["items"] + [screening]
+            new_keys = set(state["movie_keys"])
+            new_keys.add(screening["movie_key"])
+            new_transfers = list(state["transfers"])
+            new_idle = state["idle"]
+            if transfer:
+                new_transfers.append(transfer)
+                new_idle += transfer["gap_min"]
+            next_beam.append({
+                "items": new_items,
+                "movie_keys": new_keys,
+                "transfers": new_transfers,
+                "idle": new_idle
+            })
+
+        deduped = {}
+        for state in next_beam:
+            signature = tuple(item["id"] for item in state["items"])
+            if signature not in deduped:
+                deduped[signature] = state
+        beam = sorted(
+            deduped.values(),
+            key=lambda s: (
+                -len(s["movie_keys"] & available_must_keys),
+                -len(s["items"]),
+                s["idle"],
+                s["items"][-1]["end_min"] if s["items"] else 0
+            )
+        )[:beam_size]
+
+    candidates = []
+    seen = set()
+    for state in sorted(beam, key=lambda s: (-len(s["movie_keys"] & available_must_keys), -len(s["items"]), s["idle"])):
+        if not state["items"]:
+            continue
+        signature = tuple(item["id"] for item in state["items"])
+        if signature in seen:
+            continue
+        seen.add(signature)
+        scheduled_keys = {item["movie_key"] for item in state["items"]}
+        unscheduled_keys = sorted(available_movie_keys - scheduled_keys)
+        must_scheduled_keys = sorted(available_must_keys & scheduled_keys)
+        must_unscheduled_keys = sorted(available_must_keys - scheduled_keys)
+        candidates.append({
+            "items": state["items"],
+            "transfers": state["transfers"],
+            "scheduled_count": len(state["items"]),
+            "unscheduled_count": len(unscheduled_keys),
+            "total_movies": len(available_movie_keys),
+            "scheduled_movies": [movie_meta[k] for k in sorted(scheduled_keys) if k in movie_meta],
+            "unscheduled_movies": [movie_meta[k] for k in unscheduled_keys if k in movie_meta],
+            "must_scheduled_count": len(must_scheduled_keys),
+            "must_unscheduled_count": len(must_unscheduled_keys),
+            "must_scheduled_movies": [movie_meta[k] for k in must_scheduled_keys if k in movie_meta],
+            "must_unscheduled_movies": [movie_meta[k] for k in must_unscheduled_keys if k in movie_meta],
+            "idle_min": state["idle"]
+        })
+        if len(candidates) >= max_candidates:
+            break
+
+    return jsonify({
+        "status": "ok",
+        "candidates": candidates,
+        "total_movies": len(available_movie_keys),
+        "must_total": len(available_must_keys),
+        "must_unavailable": [
+            {"key": k, "title": k.split("||", 1)[0], "director": k.split("||", 1)[1] if "||" in k else ""}
+            for k in sorted(must_keys - available_movie_keys)
+        ],
+        "screening_count": len(screenings),
+        "buffer_min": buffer_min
+    })
 
 
 # 启动时检查：如果 films.json 为空，尝试从 uploads 自动加载
