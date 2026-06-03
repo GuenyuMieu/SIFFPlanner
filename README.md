@@ -102,6 +102,7 @@
 # 克隆仓库
 git clone https://github.com/GuenyuMieu/SIFFPlanner.git
 cd SIFFPlanner
+#没有安装git的也可以点击右上角的"<>Code"按钮，然后点击Download ZIP，下载完后解压缩，打开SIFFPlanner-main文件夹下继续下面的操作。
 
 # 使用 Pixi 启动（自动创建环境并安装依赖）
 pixi run app
