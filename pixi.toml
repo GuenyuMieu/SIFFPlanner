@@ -6,6 +6,7 @@ platforms = ["win-64"]
 version = "0.1.0"
 
 [tasks]
+app = "python app.py"
 
 [dependencies]
 pandas = ">=3.0.2,<4"
